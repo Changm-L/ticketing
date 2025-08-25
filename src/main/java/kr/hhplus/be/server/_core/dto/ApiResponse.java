@@ -14,12 +14,24 @@ public class ApiResponse {
         return ResponseEntity.status(status).body(new ListResult<>(null, data));
     }
 
+    private static ResponseEntity<CommonResult> of(HttpStatus status) {
+        return ResponseEntity.status(status).body(new CommonResult(null));
+    }
+
     public static <T> ResponseEntity<SingleResult<T>> ok(T data) {
         return ApiResponse.of(HttpStatus.OK, data);
     }
 
     public static <T> ResponseEntity<ListResult<T>> ok(List<T> data) {
         return ApiResponse.of(HttpStatus.OK, data);
+    }
+
+    public static ResponseEntity<CommonResult> ok() {
+        return ApiResponse.of(HttpStatus.OK);
+    }
+
+    public static ResponseEntity<CommonResult> failedOf(HttpStatus status, String message) {
+        return ResponseEntity.status(status).body(new CommonResult(message));
     }
 
     /*
