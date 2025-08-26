@@ -38,10 +38,19 @@ public class JwtProvider {
     }
 
     public TokenPair issueTokens(User user) {
-        String accessToken = issueAccessToken(user);
-        String refreshToken = issueRefreshToken(user);
+        Instant now = Instant.now();
 
-        return new TokenPair(accessToken, refreshToken);
+        int jitter = (int) (Math.floor(Math.random() * 10)) + 1;
+        Instant accessExpiration = now.plusSeconds(jwtProperties.access().expiration()).plusSeconds(jitter);
+        Instant refreshExpiration = now.plusSeconds(jwtProperties.refresh().expiration()).plusSeconds(jitter);
+
+        String accessToken = issueAccessToken(user, accessExpiration, now);
+        String refreshToken = issueRefreshToken(user, refreshExpiration, now);
+
+        return new TokenPair(
+                new TokenPair.Access(accessToken, accessExpiration),
+                new TokenPair.Refresh(refreshToken, refreshExpiration)
+        );
     }
 
     public Claims parseToken(String token) {
@@ -53,10 +62,13 @@ public class JwtProvider {
                 .getPayload();
     }
 
-    private String issueAccessToken(User user) {
+    private String issueAccessToken(
+            User user,
+            Instant ttl,
+            Instant now
+    ) {
         String accessJti = UUID.randomUUID().toString();
-        Instant now = Instant.now();
-        int jitter = (int) (Math.floor(Math.random() * 10)) + 1;
+
 
         return Jwts.builder()
                    .subject(String.valueOf(user.getId()))
@@ -64,22 +76,24 @@ public class JwtProvider {
                    .claim(ROLE_CLAIM_KEY, user.getRole())
                    .claim(TOKEN_TYPE_CLAIM_KEY, JwtTokenType.ACCESS.toString())
                    .issuedAt(Date.from(now))
-                   .expiration(Date.from(now.plusSeconds(jwtProperties.access().expiration()).plusSeconds(jitter)))
+                   .expiration(Date.from(ttl))
                    .signWith(accessSecretKey)
                    .compact();
     }
 
-    private String issueRefreshToken(User user) {
+    private String issueRefreshToken(
+            User user,
+            Instant ttl,
+            Instant now
+    ) {
         String refreshJti = UUID.randomUUID().toString();
-        Instant now = Instant.now();
-        int jitter = (int) (Math.floor(Math.random() * 10)) + 1;
 
         return Jwts.builder()
                    .subject(String.valueOf(user.getId()))
                    .id(refreshJti)
                    .issuedAt(Date.from(now))
                    .claim(TOKEN_TYPE_CLAIM_KEY, JwtTokenType.REFRESH.toString())
-                   .expiration(Date.from(now.plusSeconds(jwtProperties.refresh().expiration()).plusSeconds(jitter)))
+                   .expiration(Date.from(ttl))
                    .signWith(refreshSecretKey)
                    .compact();
     }

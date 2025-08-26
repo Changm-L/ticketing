@@ -44,8 +44,7 @@ public class AuthService {
         }
 
         TokenPair pair = jwtProvider.issueTokens(user);
-        //TODO: tokenProvider 파라미터
-        //        redisTokenProvider.saveRefreshToken();
+        redisTokenProvider.saveRefreshToken(pair.refresh(), user.getId());
         return pair;
     }
 
@@ -68,8 +67,7 @@ public class AuthService {
 
         String oldJwtTokenId = claims.getId();
         if (redisTokenProvider.isBlackList(oldJwtTokenId)) {
-            //TODO: 명시적 exception 적용
-            throw new IllegalArgumentException("이미 만료된 토큰입니다.");
+            throw new AlreadySignOutTokenException();
         }
 
         long userId = Long.parseLong(claims.getSubject());
@@ -77,8 +75,7 @@ public class AuthService {
         redisTokenProvider.blackList(claims);
 
         TokenPair pair = jwtProvider.issueTokens(user);
-        //        redisTokenProvider.saveRefreshToken(pair.refreshToken());
-        //TODO: refresh token redis 저장
+        redisTokenProvider.saveRefreshToken(pair.refresh(), user.getId());
 
         return pair;
     }

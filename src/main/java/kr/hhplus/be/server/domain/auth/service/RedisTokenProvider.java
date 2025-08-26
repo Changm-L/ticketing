@@ -7,6 +7,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
+import kr.hhplus.be.server.domain.auth.dto.response.TokenPair;
 
 @Component
 @RequiredArgsConstructor
@@ -20,14 +21,18 @@ public class RedisTokenProvider {
 
     public void blackList(Claims claims) {
         String jti = claims.getId();
+        String stringUserId = claims.getSubject();
         Duration ttl = Duration.between(Instant.now(), claims.getExpiration().toInstant());
-        redisTemplate.opsForValue().set(BLACK_LIST_PREFIX + jti, "1", ttl);
+        redisTemplate.opsForValue().set(BLACK_LIST_PREFIX + jti, stringUserId, ttl);
     }
 
-    public void saveRefreshToken(Claims claims) {
-        String jti = claims.getId();
-        Duration ttl = Duration.between(Instant.now(), claims.getExpiration().toInstant());
-        redisTemplate.opsForValue().set(REFRESH_TOKEN_PREFIX + jti, String.valueOf(claims.getSubject()), ttl);
+    public void saveRefreshToken(
+            TokenPair.Refresh refreshToken,
+            long userId
+    ) {
+        String jti = refreshToken.token();
+        Duration ttl = Duration.between(Instant.now(), refreshToken.expiredAt());
+        redisTemplate.opsForValue().set(REFRESH_TOKEN_PREFIX + jti, String.valueOf(userId), ttl);
     }
 
     public boolean isRefreshTokenActive(Claims claims) {
