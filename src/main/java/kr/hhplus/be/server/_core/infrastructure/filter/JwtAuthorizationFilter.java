@@ -5,8 +5,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
@@ -19,13 +19,20 @@ import kr.hhplus.be.server.domain.auth.exception.UnAuthorizationException;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
-    private final JwtProvider              jwtProvider;
     private final HandlerExceptionResolver handlerExceptionResolver;
+    private final JwtProvider              jwtProvider;
     private final String                   HEADER_STRING = "Authorization";
     private final String                   TOKEN_PREFIX  = "Bearer ";
+
+    public JwtAuthorizationFilter(
+            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver,
+            JwtProvider jwtProvider
+    ) {
+        this.handlerExceptionResolver = handlerExceptionResolver;
+        this.jwtProvider = jwtProvider;
+    }
 
     @Override
     protected void doFilterInternal(
