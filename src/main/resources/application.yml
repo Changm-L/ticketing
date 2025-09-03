@@ -16,10 +16,20 @@ spring:
     generate-ddl: false
     show-sql: false
     hibernate:
-      ddl-auto: none
+      # 운영 상황 시 none이지만 현재 프로젝트는 create-drop으로 진행
+      ddl-auto: create-drop
     properties:
       hibernate.timezone.default_storage: NORMALIZE_UTC
       hibernate.jdbc.time_zone: UTC
+
+security:
+  jwt:
+    access:
+      secret: access_secret_access_secret_acce
+      expiration: 900        # 15분
+    refresh:
+      secret: refresh_secret_refresh_secret_re
+      expiration: 1209600   # 14일
 
 ---
 spring.config.activate.on-profile: local, test
