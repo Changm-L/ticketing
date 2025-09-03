@@ -60,6 +60,36 @@
 }
 ```
 
+## 콘서트 API
+
+- `GET /v1/concerts`
+- require
+  - Authorization Header
+- response
+
+```json
+{
+  "error": false,
+  "message": null,
+  "data": [
+    {
+      "concertId": 1,
+      "title": "콘서트 이름",
+      "address": "안국역 4번 출구",
+      "availableSeatCount": 50,
+      "date": "2025-08-28"
+    },
+    {
+      "concertId": 2,
+      "title": "두번째 콘서트 이름",
+      "address": "안국역 4번 출구",
+      "availableSeatCount": 50,
+      "date": "2025-08-30"
+    }
+  ]
+}
+```
+
 ## 좌석 API
 
 ### 예약 가능 좌석 조회
@@ -77,12 +107,14 @@
     {
       "concert_id": 1,
       "concert_date": "2025-08-27",
+      "seat_id": 1,
       "seat_no": 1
     },
     ...
     {
       "concert_id": 1,
       "concert_date": "2025-08-27",
+      "seat_id": 50,
       "seat_no": 50
     }
   ]
@@ -165,6 +197,38 @@
 - `POST /v1/admin/concert`
 - require
     - Authorization Header
+
+### 목록 조회
+
+- `GET /v1/admin/concerts`
+- require
+  - Authorization Header
+- response
+
+```json
+{
+  "error": false,
+  "message": null,
+  "data": [
+    {
+      "concertId": 1,
+      "title": "콘서트 이름",
+      "address": "안국역 4번 출구",
+      "availableSeatCount": 50,
+      "date": "2025-08-30",
+      "status": "ACTIVE"
+    },
+    {
+      "concertId": 2,
+      "title": "두번째 콘서트 이름",
+      "address": "안국역 4번 출구",
+      "availableSeatCount": 50,
+      "date": "2025-08-30",
+      "status": "ACTIVE"
+    }
+  ]
+}
+```
 
 ### 상세 조회
 
