@@ -1,4 +1,16 @@
 package kr.hhplus.be.server.domain.concert.repository;
 
-public interface ConcertRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import kr.hhplus.be.server.domain.concert.entity.Concert;
+import kr.hhplus.be.server.domain.concert.exception.ConcertNotFoundException;
+
+@Repository
+public interface ConcertRepository extends JpaRepository<Concert, Long> {
+
+    default Concert getById(long id) {
+        return findById(id).orElseThrow(ConcertNotFoundException::new);
+    }
+
 }
