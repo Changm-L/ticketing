@@ -5,8 +5,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
@@ -14,18 +14,25 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import kr.hhplus.be.server._core.infrastructure.jwt.JwtProvider;
-import kr.hhplus.be.server.domain.auth.constant.JwtTokenType;
-import kr.hhplus.be.server.domain.auth.exception.UnAuthorizationException;
+import kr.hhplus.be.server.user.domain.auth.constant.JwtTokenType;
+import kr.hhplus.be.server.user.domain.auth.exception.UnAuthorizationException;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private final JwtProvider              jwtProvider;
     private final HandlerExceptionResolver handlerExceptionResolver;
     private final String                   HEADER_STRING = "Authorization";
     private final String                   TOKEN_PREFIX  = "Bearer ";
+
+    public JwtAuthorizationFilter(
+            JwtProvider jwtProvider,
+            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver
+    ) {
+        this.jwtProvider = jwtProvider;
+        this.handlerExceptionResolver = handlerExceptionResolver;
+    }
 
     @Override
     protected void doFilterInternal(
@@ -36,7 +43,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         try {
 
             String path = request.getRequestURI();
-            if (path.startsWith("/auth/") || "OPTIONS".equals(request.getMethod())) {
+            if (path.startsWith("/v1/auth/") || "OPTIONS".equals(request.getMethod())) {
                 chain.doFilter(request, response);
                 return;
             }
