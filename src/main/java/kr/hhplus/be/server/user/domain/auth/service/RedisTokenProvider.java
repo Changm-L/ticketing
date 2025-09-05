@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.domain.auth.service;
+package kr.hhplus.be.server.user.domain.auth.service;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -7,7 +7,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
-import kr.hhplus.be.server.domain.auth.dto.response.TokenPair;
+import kr.hhplus.be.server.user.domain.auth.dto.response.TokenPair;
 
 @Component
 @RequiredArgsConstructor
