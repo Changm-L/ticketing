@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import kr.hhplus.be.server._core.dto.ApiResponse;
 import kr.hhplus.be.server._core.dto.CommonResult;
-import kr.hhplus.be.server.domain.auth.exception.UnAuthorizationException;
+import kr.hhplus.be.server.user.domain.auth.exception.AuthException;
+import kr.hhplus.be.server.user.domain.auth.exception.UnAuthorizationException;
+import kr.hhplus.be.server.user.domain.user.exception.UserException;
 
 @Slf4j
 @RestControllerAdvice
@@ -29,6 +31,18 @@ public class ApiExceptionHandler {
     public ResponseEntity<CommonResult> handleUnAuthorizationException(UnAuthorizationException ex) {
         log.warn(ex.getMessage(), ex);
         return ApiResponse.failedOf(HttpStatus.UNAUTHORIZED, ex.getMessage());
+    }
+
+    @ExceptionHandler(AuthException.class)
+    public ResponseEntity<CommonResult> handleAuthException(AuthException ex) {
+        log.warn(ex.getMessage(), ex);
+        return ApiResponse.failedOf(HttpStatus.UNAUTHORIZED, ex.getMessage());
+    }
+
+    @ExceptionHandler(UserException.class)
+    public ResponseEntity<CommonResult> handleUserException(UserException ex) {
+        log.warn(ex.getMessage(), ex);
+        return ApiResponse.failedOf(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
