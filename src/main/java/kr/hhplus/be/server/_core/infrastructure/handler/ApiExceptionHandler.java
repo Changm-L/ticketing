@@ -4,12 +4,14 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import kr.hhplus.be.server._core.dto.ApiResponse;
 import kr.hhplus.be.server._core.dto.CommonResult;
+import kr.hhplus.be.server._core.exception.ApiException;
 import kr.hhplus.be.server.user.domain.auth.exception.AuthException;
 import kr.hhplus.be.server.user.domain.auth.exception.UnAuthorizationException;
 import kr.hhplus.be.server.user.domain.user.exception.UserException;
@@ -41,6 +43,20 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(UserException.class)
     public ResponseEntity<CommonResult> handleUserException(UserException ex) {
+        log.warn(ex.getMessage(), ex);
+        return ApiResponse.failedOf(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<CommonResult> handleNotReadable(HttpMessageNotReadableException ex) {
+        Throwable cause = ex.getMostSpecificCause();
+        log.warn(cause.getMessage(), cause);
+
+        return ApiResponse.failedOf(HttpStatus.BAD_REQUEST, cause.getMessage());
+    }
+
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<CommonResult> handleApiException(ApiException ex) {
         log.warn(ex.getMessage(), ex);
         return ApiResponse.failedOf(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
