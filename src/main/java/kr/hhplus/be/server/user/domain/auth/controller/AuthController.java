@@ -12,7 +12,7 @@ import kr.hhplus.be.server._core.dto.response.CreateRes;
 import kr.hhplus.be.server.user.domain.auth.dto.request.ReIssueTokenRequest;
 import kr.hhplus.be.server.user.domain.auth.dto.request.SignInRequest;
 import kr.hhplus.be.server.user.domain.auth.dto.request.SignUpRequest;
-import kr.hhplus.be.server.user.domain.auth.dto.response.TokenPair;
+import kr.hhplus.be.server.user.domain.auth.dto.response.TokenPairUserResponse;
 import kr.hhplus.be.server.user.domain.auth.service.AuthService;
 
 @RestController
@@ -31,14 +31,14 @@ public class AuthController {
     }
 
     @PostMapping("/sign-in")
-    public ResponseEntity<SingleResult<TokenPair>> signIn(
+    public ResponseEntity<SingleResult<TokenPairUserResponse>> signIn(
             @Valid @RequestBody SignInRequest request
     ) {
         return ApiResponse.ok(authService.signIn(request));
     }
 
     @PostMapping("/re-issue")
-    public ResponseEntity<SingleResult<TokenPair>> reIssue(
+    public ResponseEntity<SingleResult<TokenPairUserResponse>> reIssue(
             @Valid @RequestBody ReIssueTokenRequest request
     ) {
         return ApiResponse.ok(authService.reIssue(request));

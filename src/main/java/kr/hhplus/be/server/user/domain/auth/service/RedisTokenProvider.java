@@ -30,9 +30,8 @@ public class RedisTokenProvider {
             TokenPair.Refresh refreshToken,
             long userId
     ) {
-        String jti = refreshToken.token();
         Duration ttl = Duration.between(Instant.now(), refreshToken.expiredAt());
-        redisTemplate.opsForValue().set(REFRESH_TOKEN_PREFIX + jti, String.valueOf(userId), ttl);
+        redisTemplate.opsForValue().set(REFRESH_TOKEN_PREFIX + userId, refreshToken.token(), ttl);
     }
 
     public boolean isRefreshTokenActive(Claims claims) {

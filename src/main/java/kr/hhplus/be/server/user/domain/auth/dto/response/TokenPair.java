@@ -9,11 +9,13 @@ public record TokenPair(
 
     public record Access(
             String token,
+            String jti,
             Instant expiredAt
     ) {}
 
     public record Refresh(
             String token,
+            String jti,
             Instant expiredAt
     ) {}
 }

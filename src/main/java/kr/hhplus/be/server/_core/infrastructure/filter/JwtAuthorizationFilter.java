@@ -43,7 +43,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         try {
 
             String path = request.getRequestURI();
-            if (path.startsWith("/v1/auth/") || "OPTIONS".equals(request.getMethod())) {
+            if ((path.startsWith("/v1/auth/") && !path.matches("/v1/auth/sign-out")) || "OPTIONS".equals(request.getMethod())) {
                 chain.doFilter(request, response);
                 return;
             }

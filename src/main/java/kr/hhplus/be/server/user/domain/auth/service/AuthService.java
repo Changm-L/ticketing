@@ -12,6 +12,7 @@ import kr.hhplus.be.server.user.domain.auth.dto.request.ReIssueTokenRequest;
 import kr.hhplus.be.server.user.domain.auth.dto.request.SignInRequest;
 import kr.hhplus.be.server.user.domain.auth.dto.request.SignUpRequest;
 import kr.hhplus.be.server.user.domain.auth.dto.response.TokenPair;
+import kr.hhplus.be.server.user.domain.auth.dto.response.TokenPairUserResponse;
 import kr.hhplus.be.server.user.domain.auth.exception.AlreadySignOutTokenException;
 import kr.hhplus.be.server.user.domain.auth.exception.PasswordNotMatchException;
 import kr.hhplus.be.server.user.domain.user.entity.User;
@@ -38,15 +39,16 @@ public class AuthService {
     }
 
     @Transactional
-    public TokenPair signIn(SignInRequest request) {
+    public TokenPairUserResponse signIn(SignInRequest request) {
         User user = userRepository.getUserByEmail((request.email()));
-        if (!passwordEncoder.matches(user.getPassword(), request.password())) {
+        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
             throw new PasswordNotMatchException();
         }
 
         TokenPair pair = jwtProvider.issueTokens(user);
         redisTokenProvider.saveRefreshToken(pair.refresh(), user.getId());
-        return pair;
+
+        return TokenPairUserResponse.of(pair);
     }
 
     @Transactional
@@ -60,7 +62,7 @@ public class AuthService {
     }
 
     @Transactional
-    public TokenPair reIssue(ReIssueTokenRequest request) {
+    public TokenPairUserResponse reIssue(ReIssueTokenRequest request) {
         Claims claims = jwtProvider.parseToken(request.refreshToken());
         if (!claims.get(JwtProvider.TOKEN_TYPE_CLAIM_KEY).equals(JwtTokenType.REFRESH.name())) {
             throw new IllegalArgumentException("Refresh 토큰이 아닙니다.");
@@ -78,7 +80,7 @@ public class AuthService {
         TokenPair pair = jwtProvider.issueTokens(user);
         redisTokenProvider.saveRefreshToken(pair.refresh(), user.getId());
 
-        return pair;
+        return TokenPairUserResponse.of(pair);
     }
 
 }
