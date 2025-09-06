@@ -1,6 +1,8 @@
 package kr.hhplus.be.server.user.domain.user.exception;
 
-public abstract class UserException extends RuntimeException {
+import kr.hhplus.be.server._core.exception.ApiException;
+
+public abstract class UserException extends ApiException {
     public UserException(String message) {
         super(message);
     }

@@ -1,6 +1,8 @@
 package kr.hhplus.be.server.user.domain.auth.exception;
 
-public abstract class AuthException extends IllegalStateException {
+import kr.hhplus.be.server._core.exception.ApiException;
+
+public abstract class AuthException extends ApiException {
     public static final String DEFAULT_MESSAGE = "미 인증 사용자입니다.";
 
     public AuthException() {
