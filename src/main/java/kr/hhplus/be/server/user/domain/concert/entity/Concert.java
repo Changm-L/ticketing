@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 
 import kr.hhplus.be.server._core.entity.BaseTimeEntity;
 import kr.hhplus.be.server.admin.domain.concert.dto.request.CreateConcertRequest;
+import kr.hhplus.be.server.admin.domain.concert.dto.request.UpdateConcertRequest;
 import kr.hhplus.be.server.user.domain.concert.constant.ConcertStatus;
 
 @Entity
@@ -56,6 +57,24 @@ public class Concert extends BaseTimeEntity {
                 request.startsAt(),
                 request.endsAt()
         );
+    }
+
+    public void update(UpdateConcertRequest request) {
+        if (request.title() != null) {
+            this.title = request.title();
+        }
+        if (request.status() != null) {
+            this.status = request.status();
+        }
+        if (request.address() != null) {
+            this.address = request.address();
+        }
+        if (request.startsAt() != null) {
+            this.startsAt = request.startsAt();
+        }
+        if (request.endsAt() != null) {
+            this.endsAt = request.endsAt();
+        }
     }
 
 }
