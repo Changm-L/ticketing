@@ -31,10 +31,10 @@ public class AdminConcertController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SingleResult<AdminConcertDetailResponse>> get(
+    public ResponseEntity<SingleResult<AdminConcertDetailResponse>> getById(
             @PathVariable long id
     ) {
-        AdminConcertDetailResponse result = adminConcertService.findConcertById(id);
+        AdminConcertDetailResponse result = adminConcertService.getById(id);
         return ApiResponse.ok(result);
     }
 

@@ -27,7 +27,7 @@ public class AdminConcertService {
     }
 
     @Transactional(readOnly = true)
-    public AdminConcertDetailResponse findConcertById(long id) {
+    public AdminConcertDetailResponse getById(long id) {
         Concert concert = concertRepository.getById(id);
         return AdminConcertDetailResponse.of(concert);
     }
