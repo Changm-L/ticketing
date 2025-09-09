@@ -1,10 +1,8 @@
 package kr.hhplus.be.server.user.domain.concert.entity;
 
 import java.time.LocalDate;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import java.util.List;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +11,7 @@ import kr.hhplus.be.server._core.entity.BaseTimeEntity;
 import kr.hhplus.be.server.admin.domain.concert.dto.request.CreateConcertRequest;
 import kr.hhplus.be.server.admin.domain.concert.dto.request.UpdateConcertRequest;
 import kr.hhplus.be.server.user.domain.concert.constant.ConcertStatus;
+import kr.hhplus.be.server.user.domain.concert.dto.response.SeatBatch;
 
 @Entity
 @Getter
@@ -34,6 +33,22 @@ public class Concert extends BaseTimeEntity {
 
     @Column(nullable = false)
     private LocalDate endsAt;
+
+    @OneToMany(
+            mappedBy = "concert",
+            fetch = FetchType.LAZY,
+            cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
+            orphanRemoval = true
+    )
+    private List<SeatMaster> seatMasterList;
+
+    @OneToMany(
+            mappedBy = "concert",
+            fetch = FetchType.LAZY,
+            cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
+            orphanRemoval = true
+    )
+    private List<SeatInventory> seatInventoryList;
 
     private Concert(
             String title,
@@ -77,4 +92,8 @@ public class Concert extends BaseTimeEntity {
         }
     }
 
+    public void resetSeatsWith(SeatBatch seatBatch) {
+        this.seatMasterList = seatBatch.seatMasterList();
+        this.seatInventoryList = seatBatch.seatInventoryList();
+    }
 }
