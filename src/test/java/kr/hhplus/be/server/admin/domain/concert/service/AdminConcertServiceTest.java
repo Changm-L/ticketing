@@ -13,7 +13,9 @@ import kr.hhplus.be.server.admin.domain.concert.dto.request.UpdateConcertRequest
 import kr.hhplus.be.server.admin.domain.concert.dto.response.AdminConcertDetailResponse;
 import kr.hhplus.be.server.admin.domain.concert.dto.response.AdminConcertListResponse;
 import kr.hhplus.be.server.fixture.Concert.AdminConcertFixture;
+import kr.hhplus.be.server.user.domain.concert.SeatGenerator;
 import kr.hhplus.be.server.user.domain.concert.constant.ConcertStatus;
+import kr.hhplus.be.server.user.domain.concert.dto.response.SeatBatch;
 import kr.hhplus.be.server.user.domain.concert.entity.Concert;
 import kr.hhplus.be.server.user.domain.concert.exception.ConcertNotFoundException;
 import kr.hhplus.be.server.user.domain.concert.repository.ConcertRepository;
@@ -31,6 +33,9 @@ class AdminConcertServiceTest {
 
     @Mock
     private ConcertRepository concertRepository;
+
+    @Mock
+    private SeatGenerator seatGenerator;
 
     @InjectMocks
     private AdminConcertService adminConcertService;
@@ -101,13 +106,15 @@ class AdminConcertServiceTest {
         //given
         long id = 1L;
         CreateConcertRequest request = AdminConcertFixture.createConcertRequest();
+        SeatBatch seatBatch = AdminConcertFixture.seatBatch();
+
+        when(seatGenerator.generateSeatMasterAndInventory(any(Concert.class), eq(50))).thenReturn(seatBatch);
         when(concertRepository.save(any(Concert.class)))
                 .thenAnswer(invocation -> {
-                                Concert concert = invocation.getArgument(0);
-                                ReflectionTestUtils.setField(concert, "id", id);
-                                return concert;
-                            }
-                );
+                    Concert c = invocation.getArgument(0);
+                    ReflectionTestUtils.setField(c, "id", id);
+                    return c;
+                });
 
         //when
         long result = adminConcertService.create(request);
