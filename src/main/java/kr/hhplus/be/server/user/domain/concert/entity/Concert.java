@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.user.domain.concert.entity;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -11,7 +12,6 @@ import kr.hhplus.be.server._core.entity.BaseTimeEntity;
 import kr.hhplus.be.server.admin.domain.concert.dto.request.CreateConcertRequest;
 import kr.hhplus.be.server.admin.domain.concert.dto.request.UpdateConcertRequest;
 import kr.hhplus.be.server.user.domain.concert.constant.ConcertStatus;
-import kr.hhplus.be.server.user.domain.concert.dto.response.SeatBatch;
 
 @Entity
 @Getter
@@ -40,15 +40,7 @@ public class Concert extends BaseTimeEntity {
             cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
             orphanRemoval = true
     )
-    private List<SeatMaster> seatMasterList;
-
-    @OneToMany(
-            mappedBy = "concert",
-            fetch = FetchType.LAZY,
-            cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
-            orphanRemoval = true
-    )
-    private List<SeatInventory> seatInventoryList;
+    private final List<SeatMaster> seatMasterList = new ArrayList<>();
 
     private Concert(
             String title,
@@ -92,8 +84,8 @@ public class Concert extends BaseTimeEntity {
         }
     }
 
-    public void resetSeatsWith(SeatBatch seatBatch) {
-        this.seatMasterList = seatBatch.seatMasterList();
-        this.seatInventoryList = seatBatch.seatInventoryList();
+    public void resetSeatsWith(List<SeatMaster> seatMasterList) {
+        this.seatMasterList.clear();
+        this.seatMasterList.addAll(seatMasterList);
     }
 }

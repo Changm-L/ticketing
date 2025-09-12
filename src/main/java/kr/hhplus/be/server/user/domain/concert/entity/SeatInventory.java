@@ -22,10 +22,6 @@ import kr.hhplus.be.server.user.domain.concert.constant.SeatStatus;
 public class SeatInventory extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "concert_id", nullable = false)
-    Concert concert;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "seat_master_id", nullable = false)
     SeatMaster seatMaster;
 
@@ -39,23 +35,28 @@ public class SeatInventory extends BaseTimeEntity {
     @Column(nullable = false, precision = 10, scale = 2)
     BigDecimal price;
 
+    public Concert getConcert() {
+        return this.seatMaster.getConcert();
+    }
+
     private SeatInventory(
-            Concert concert,
             SeatMaster seatMaster,
             BigDecimal price,
             SeatStatus status
     ) {
-        this.concert = concert;
         this.seatMaster = seatMaster;
         this.seatStatus = status;
         this.price = price;
     }
 
     public static SeatInventory of(
-            Concert concert,
             SeatMaster seatMaster,
             BigDecimal price
     ) {
-        return new SeatInventory(concert, seatMaster, price, SeatStatus.AVAILABLE);
+        return new SeatInventory(
+                seatMaster,
+                price,
+                SeatStatus.AVAILABLE
+        );
     }
 }

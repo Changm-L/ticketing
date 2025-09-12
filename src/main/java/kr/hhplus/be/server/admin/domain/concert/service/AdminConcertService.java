@@ -10,8 +10,8 @@ import kr.hhplus.be.server.admin.domain.concert.dto.request.UpdateConcertRequest
 import kr.hhplus.be.server.admin.domain.concert.dto.response.AdminConcertDetailResponse;
 import kr.hhplus.be.server.admin.domain.concert.dto.response.AdminConcertListResponse;
 import kr.hhplus.be.server.user.domain.concert.SeatGenerator;
-import kr.hhplus.be.server.user.domain.concert.dto.response.SeatBatch;
 import kr.hhplus.be.server.user.domain.concert.entity.Concert;
+import kr.hhplus.be.server.user.domain.concert.entity.SeatMaster;
 import kr.hhplus.be.server.user.domain.concert.repository.ConcertRepository;
 
 @Service
@@ -38,8 +38,8 @@ public class AdminConcertService {
     @Transactional
     public long create(CreateConcertRequest request) {
         Concert concert = new Concert(request);
-        SeatBatch seatBatch = seatGenerator.generateSeatMasterAndInventory(concert, 50);
-        concert.resetSeatsWith(seatBatch);
+        List<SeatMaster> seatMasterList = seatGenerator.generateSeatMasterAndInventory(concert, 50);
+        concert.resetSeatsWith(seatMasterList);
         concertRepository.save(concert);
 
         return concert.getId();
