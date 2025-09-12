@@ -6,9 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import kr.hhplus.be.server.admin.domain.concert.dto.request.CreateConcertRequest;
-import kr.hhplus.be.server.user.domain.concert.dto.response.SeatBatch;
 import kr.hhplus.be.server.user.domain.concert.entity.Concert;
-import kr.hhplus.be.server.user.domain.concert.entity.SeatInventory;
 import kr.hhplus.be.server.user.domain.concert.entity.SeatMaster;
 
 public class AdminConcertFixture {
@@ -27,19 +25,15 @@ public class AdminConcertFixture {
         return new Concert(request);
     }
 
-    public static SeatBatch seatBatch() {
+    public static List<SeatMaster> seatMasterList() {
         Concert concert = concert();
         List<SeatMaster> seatMasterList = new ArrayList<>();
-        List<SeatInventory> seatInventoryList = new ArrayList<>();
 
         for (int i = 1; i <= 50; i++) {
-            SeatMaster seatMaster = new SeatMaster(concert, i % 10, i);
+            SeatMaster seatMaster = SeatMaster.of(concert, BigDecimal.valueOf(10000L), i % 10, i);
             seatMasterList.add(seatMaster);
-            seatInventoryList.add(
-                    SeatInventory.of(concert, seatMaster, BigDecimal.valueOf(10000L))
-            );
         }
 
-        return SeatBatch.of(seatMasterList, seatInventoryList);
+        return seatMasterList;
     }
 }
