@@ -21,17 +21,17 @@ import kr.hhplus.be.server.user.domain.auth.exception.UnAuthorizationException;
 @Component
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
-    private final JwtProvider              jwtProvider;
     private final HandlerExceptionResolver handlerExceptionResolver;
+    private final JwtProvider              jwtProvider;
     private final String                   HEADER_STRING = "Authorization";
     private final String                   TOKEN_PREFIX  = "Bearer ";
 
     public JwtAuthorizationFilter(
-            JwtProvider jwtProvider,
-            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver
+            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver,
+            JwtProvider jwtProvider
     ) {
-        this.jwtProvider = jwtProvider;
         this.handlerExceptionResolver = handlerExceptionResolver;
+        this.jwtProvider = jwtProvider;
     }
 
     @Override
