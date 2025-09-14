@@ -16,9 +16,7 @@ public class ConcertService {
     private final ConcertRepository repository;
 
     public List<ConcertListResponse> findAllConcerts() {
-        return repository.findAll().stream()
-                         .map(ConcertListResponse::of)
-                         .toList();
+        return repository.findAllConcertWithAvailableSeatsCount();
     }
 
     public ConcertDetailResponse getConcertById(long concertId) {
