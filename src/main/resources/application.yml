@@ -17,7 +17,7 @@ spring:
     show-sql: false
     hibernate:
       # 운영 상황 시 none이지만 현재 프로젝트는 create-drop으로 진행
-      ddl-auto: create-drop
+      ddl-auto: update
     properties:
       hibernate.timezone.default_storage: NORMALIZE_UTC
       hibernate.jdbc.time_zone: UTC
