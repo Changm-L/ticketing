@@ -12,16 +12,10 @@ import kr.hhplus.be.server.user.domain.concert.constant.SeatStatus;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(
-        name = "seat_inventory",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uk_concert_seat_inventory",
-                columnNames = {"concert_id", "seat_master_id"}
-        )
-)
+@Table(name = "seat_inventory")
 public class SeatInventory extends BaseTimeEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "seat_master_id", nullable = false)
     SeatMaster seatMaster;
 

@@ -32,7 +32,7 @@ public class SeatMaster extends IdentifiableEntity {
     private int seatNo;
 
     @OneToOne(
-            mappedBy = "seat_master",
+            mappedBy = "seatMaster",
             cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
             orphanRemoval = true
     )
