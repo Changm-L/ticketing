@@ -63,6 +63,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             request.setAttribute("token", token);
             chain.doFilter(request, response);
         } catch (JwtException e) {
+            log.warn(e.getMessage());
             handlerExceptionResolver.resolveException(
                     request,
                     response,
@@ -70,6 +71,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                     new UnAuthorizationException("유효하지 않은 토큰입니다.")
             );
         } catch (UnAuthorizationException e) {
+            log.warn(e.getMessage());
             handlerExceptionResolver.resolveException(request, response, null, e);
         } catch (Exception e) {
             log.error("인증 시 에러가 발생했습니다. 메세지: {}", e.getMessage());
