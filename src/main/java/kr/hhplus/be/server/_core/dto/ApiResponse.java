@@ -34,7 +34,7 @@ public class ApiResponse {
     }
 
     public static ResponseEntity<CommonResult> failedOf(HttpStatus status, String message) {
-        return ResponseEntity.status(status).body(new CommonResult(message));
+        return ResponseEntity.status(status).body(new CommonResult(true, message));
     }
 
     public static ResponseEntity<SingleResult<CreateRes>> create(long id) {
