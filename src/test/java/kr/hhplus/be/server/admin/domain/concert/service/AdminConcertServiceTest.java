@@ -12,7 +12,7 @@ import kr.hhplus.be.server.admin.domain.concert.dto.request.CreateConcertRequest
 import kr.hhplus.be.server.admin.domain.concert.dto.request.UpdateConcertRequest;
 import kr.hhplus.be.server.admin.domain.concert.dto.response.AdminConcertDetailResponse;
 import kr.hhplus.be.server.admin.domain.concert.dto.response.AdminConcertListResponse;
-import kr.hhplus.be.server.fixture.Concert.AdminConcertFixture;
+import kr.hhplus.be.server.fixture.Concert.ConcertFixture;
 import kr.hhplus.be.server.user.domain.concert.SeatGenerator;
 import kr.hhplus.be.server.user.domain.concert.constant.ConcertStatus;
 import kr.hhplus.be.server.user.domain.concert.entity.Concert;
@@ -68,7 +68,7 @@ class AdminConcertServiceTest {
         void 존재하는_아이디로_조회_시_AdminConcertDetailResponse를_반환한다() {
             //given
             long id = 1L;
-            Concert concert = AdminConcertFixture.concert();
+            Concert concert = ConcertFixture.concert();
             when(concertRepository.getById(id)).thenReturn(concert);
             AdminConcertDetailResponse expected = AdminConcertDetailResponse.of(concert);
 
@@ -85,7 +85,7 @@ class AdminConcertServiceTest {
             try (MockedStatic<AdminConcertListResponse> mockedStatic = mockStatic(AdminConcertListResponse.class)) {
                 //given
                 long id = 1L;
-                Concert concert = AdminConcertFixture.concert();
+                Concert concert = ConcertFixture.concert();
                 when(concertRepository.getById(id)).thenThrow(ConcertNotFoundException.class);
 
                 //when
@@ -105,8 +105,8 @@ class AdminConcertServiceTest {
     void create() {
         //given
         long id = 1L;
-        CreateConcertRequest request = AdminConcertFixture.createConcertRequest();
-        List<SeatMaster> seatMasterList = AdminConcertFixture.seatMasterList();
+        CreateConcertRequest request = ConcertFixture.createConcertRequest();
+        List<SeatMaster> seatMasterList = ConcertFixture.seatMasterList();
 
         when(seatGenerator.generateSeatMasterAndInventory(any(Concert.class), eq(50))).thenReturn(seatMasterList);
         when(concertRepository.save(any(Concert.class)))
@@ -135,7 +135,7 @@ class AdminConcertServiceTest {
                 LocalDate.now(),
                 LocalDate.now().plusDays(2)
         );
-        Concert concert = spy(AdminConcertFixture.concert());
+        Concert concert = spy(ConcertFixture.concert());
         when(concertRepository.getById(id)).thenReturn(concert);
         when(concertRepository.save(any(Concert.class)))
                 .thenAnswer(invocationOnMock -> {
