@@ -1,55 +1,66 @@
 package kr.hhplus.be.server.user.domain.user.entity;
 
-import java.time.LocalDateTime;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.experimental.FieldDefaults;
 
+import kr.hhplus.be.server._core.entity.BaseTimeEntity;
 import kr.hhplus.be.server._core.infrastructure.convertor.PasswordConverter;
 import kr.hhplus.be.server.user.domain.auth.dto.request.SignUpRequest;
 import kr.hhplus.be.server.user.domain.user.constant.Role;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import kr.hhplus.be.server.user.domain.wallet.entity.Wallet;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@FieldDefaults(level = AccessLevel.PRIVATE)
-public class User {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+public class User extends BaseTimeEntity {
 
     @Column(nullable = false, unique = true)
-    String email;
+    private String email;
 
     @Column(nullable = false)
-    String name;
+    private String name;
 
     @Column(nullable = false)
     @Convert(converter = PasswordConverter.class)
-    String password;
+    private String password;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    Role role;
+    private Role role;
 
-    @CreationTimestamp
-    @Column(nullable = false, updatable = false)
-    LocalDateTime createdAt;
+    @OneToOne(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    private Wallet wallet;
 
-    @UpdateTimestamp
-    @Column(nullable = false)
-    LocalDateTime updatedAt;
+    private User(
+            String email,
+            String name,
+            String password,
+            Role role
+    ) {
+        this.email = email;
+        this.name = name;
+        this.password = password;
+        this.role = role;
+    }
 
-    public User(SignUpRequest request) {
-        this.email = request.email();
-        this.name = request.name();
-        this.password = request.password();
-        this.role = Role.USER;
+    private void setWallet(Wallet wallet) {
+        this.wallet = wallet;
+    }
+
+    public static User of(SignUpRequest request) {
+        User user = new User(
+                request.email(),
+                request.name(),
+                request.password(),
+                Role.USER
+        );
+        Wallet wallet = Wallet.of(user);
+        user.setWallet(wallet);
+
+        return user;
+
     }
 
 }
