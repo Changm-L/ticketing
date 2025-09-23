@@ -66,13 +66,13 @@ class AdminConcertControllerTest {
                .andExpect(jsonPath("$.data[0].title").value(listResponse1.title()))
                .andExpect(jsonPath("$.data[0].address").value(listResponse1.address()))
                .andExpect(jsonPath("$.data[0].availableSeatCount").value(listResponse1.availableSeatCount()))
-               .andExpect(jsonPath("$.data[0].date").value(listResponse1.date().toString()))
+               .andExpect(jsonPath("$.data[0].startsAt").value(listResponse1.startsAt().toString()))
                .andExpect(jsonPath("$.data[0].status").value(listResponse1.status().name()))
                .andExpect(jsonPath("$.data[1].concertId").value(listResponse2.concertId()))
                .andExpect(jsonPath("$.data[1].title").value(listResponse2.title()))
                .andExpect(jsonPath("$.data[1].address").value(listResponse2.address()))
                .andExpect(jsonPath("$.data[1].availableSeatCount").value(listResponse2.availableSeatCount()))
-               .andExpect(jsonPath("$.data[1].date").value(listResponse2.date().toString()))
+               .andExpect(jsonPath("$.data[1].startsAt").value(listResponse2.startsAt().toString()))
                .andExpect(jsonPath("$.data[1].status").value(listResponse2.status().name()));
     }
 

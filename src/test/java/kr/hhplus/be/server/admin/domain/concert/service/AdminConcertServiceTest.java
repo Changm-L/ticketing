@@ -21,7 +21,6 @@ import kr.hhplus.be.server.user.domain.concert.exception.ConcertNotFoundExceptio
 import kr.hhplus.be.server.user.domain.concert.repository.ConcertRepository;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -43,22 +42,23 @@ class AdminConcertServiceTest {
     @Test
     void findAllConcerts() {
         //given
-        CreateConcertRequest request = new CreateConcertRequest(
+        AdminConcertListResponse adminConcertListResponse = new AdminConcertListResponse(
+                1L,
                 "title",
                 "address",
+                50,
                 LocalDate.now(),
-                LocalDate.now().plusDays(1)
+                ConcertStatus.ACTIVE
         );
-        Concert concert = new Concert(request);
-        when(concertRepository.findAll()).thenReturn(List.of(concert));
-        List<AdminConcertListResponse> expected = List.of(AdminConcertListResponse.of(concert));
+        List<AdminConcertListResponse> expected = List.of(adminConcertListResponse);
+        when(concertRepository.findAllAdminConcerts()).thenReturn(expected);
 
         //when
         List<AdminConcertListResponse> result = adminConcertService.findAllConcerts();
 
         //then
         assertEquals(expected, result);
-        verify(concertRepository).findAll();
+        verify(concertRepository).findAllAdminConcerts();
     }
 
     @Nested
@@ -68,35 +68,37 @@ class AdminConcertServiceTest {
         void 존재하는_아이디로_조회_시_AdminConcertDetailResponse를_반환한다() {
             //given
             long id = 1L;
-            Concert concert = ConcertFixture.concert();
-            when(concertRepository.getById(id)).thenReturn(concert);
-            AdminConcertDetailResponse expected = AdminConcertDetailResponse.of(concert);
+            AdminConcertDetailResponse expected = new AdminConcertDetailResponse(
+                    id,
+                    "title",
+                    "address",
+                    LocalDate.now(),
+                    LocalDate.now().minusDays(5),
+                    50,
+                    ConcertStatus.ACTIVE
+            );
+            when(concertRepository.getAdminConcertDetailById(id)).thenReturn(expected);
 
             //when
             AdminConcertDetailResponse result = adminConcertService.getById(id);
 
             //then
             assertEquals(expected, result);
-            verify(concertRepository).getById(id);
+            verify(concertRepository).getAdminConcertDetailById(id);
         }
 
         @Test
         void 존재하지_않는_아이디로_조회_시_ConcertNotFoundException이_발생한다() {
-            try (MockedStatic<AdminConcertListResponse> mockedStatic = mockStatic(AdminConcertListResponse.class)) {
-                //given
-                long id = 1L;
-                Concert concert = ConcertFixture.concert();
-                when(concertRepository.getById(id)).thenThrow(ConcertNotFoundException.class);
+            //given
+            long id = 1L;
+            when(concertRepository.getAdminConcertDetailById(id)).thenReturn(null);
 
-                //when
-                assertThrows(
-                        ConcertNotFoundException.class,
-                        () -> adminConcertService.getById(id)
-                );
+            //when & then
+            assertThrows(
+                    ConcertNotFoundException.class,
+                    () -> adminConcertService.getById(id)
+            );
 
-                //then
-                mockedStatic.verify(() -> AdminConcertListResponse.of(concert), never());
-            }
         }
 
     }

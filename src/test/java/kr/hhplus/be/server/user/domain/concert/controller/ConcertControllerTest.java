@@ -68,7 +68,14 @@ class ConcertControllerTest {
         long concertId = 1L;
         Concert concert = ConcertFixture.concert();
         ReflectionTestUtils.setField(concert, "id", concertId);
-        ConcertDetailResponse concertDetailResponse = ConcertDetailResponse.of(concert);
+        ConcertDetailResponse concertDetailResponse = new ConcertDetailResponse(
+                concertId,
+                concert.getTitle(),
+                concert.getAddress(),
+                concert.getStartsAt(),
+                concert.getEndsAt(),
+                50
+        );
         when(concertService.getConcertById(concertId)).thenReturn(concertDetailResponse);
 
         mockMvc.perform(
