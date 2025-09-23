@@ -7,7 +7,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import kr.hhplus.be.server.fixture.Concert.ConcertFixture;
+import kr.hhplus.be.server.fixture.concert.ConcertFixture;
 import kr.hhplus.be.server.user.domain.concert.entity.Concert;
 import kr.hhplus.be.server.user.domain.concert.entity.SeatMaster;
 import kr.hhplus.be.server.user.domain.concert.repository.SeatInventoryReadRepository;

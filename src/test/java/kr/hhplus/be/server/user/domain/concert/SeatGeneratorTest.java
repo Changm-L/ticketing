@@ -5,7 +5,7 @@ import java.util.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import kr.hhplus.be.server.fixture.Concert.ConcertFixture;
+import kr.hhplus.be.server.fixture.concert.ConcertFixture;
 import kr.hhplus.be.server.user.domain.concert.entity.Concert;
 import kr.hhplus.be.server.user.domain.concert.entity.SeatMaster;
 

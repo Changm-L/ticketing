@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import kr.hhplus.be.server.fixture.Concert.ConcertFixture;
+import kr.hhplus.be.server.fixture.concert.ConcertFixture;
 import kr.hhplus.be.server.user.domain.concert.dto.response.ConcertDetailResponse;
 import kr.hhplus.be.server.user.domain.concert.dto.response.ConcertListResponse;
 import kr.hhplus.be.server.user.domain.concert.entity.Concert;

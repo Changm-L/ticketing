@@ -12,7 +12,7 @@ import kr.hhplus.be.server.admin.domain.concert.dto.request.CreateConcertRequest
 import kr.hhplus.be.server.admin.domain.concert.dto.request.UpdateConcertRequest;
 import kr.hhplus.be.server.admin.domain.concert.dto.response.AdminConcertDetailResponse;
 import kr.hhplus.be.server.admin.domain.concert.dto.response.AdminConcertListResponse;
-import kr.hhplus.be.server.fixture.Concert.ConcertFixture;
+import kr.hhplus.be.server.fixture.concert.ConcertFixture;
 import kr.hhplus.be.server.user.domain.concert.SeatGenerator;
 import kr.hhplus.be.server.user.domain.concert.constant.ConcertStatus;
 import kr.hhplus.be.server.user.domain.concert.entity.Concert;
