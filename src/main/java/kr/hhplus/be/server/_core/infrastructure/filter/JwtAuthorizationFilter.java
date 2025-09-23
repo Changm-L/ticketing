@@ -15,23 +15,28 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import kr.hhplus.be.server._core.infrastructure.jwt.JwtProvider;
 import kr.hhplus.be.server.user.domain.auth.constant.JwtTokenType;
+import kr.hhplus.be.server.user.domain.auth.exception.AlreadySignOutTokenException;
 import kr.hhplus.be.server.user.domain.auth.exception.UnAuthorizationException;
+import kr.hhplus.be.server.user.domain.auth.service.RedisTokenProvider;
 
 @Slf4j
 @Component
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
-    private final JwtProvider              jwtProvider;
     private final HandlerExceptionResolver handlerExceptionResolver;
+    private final JwtProvider              jwtProvider;
     private final String                   HEADER_STRING = "Authorization";
     private final String                   TOKEN_PREFIX  = "Bearer ";
+    private final RedisTokenProvider       redisTokenProvider;
 
     public JwtAuthorizationFilter(
+            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver,
             JwtProvider jwtProvider,
-            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver
+            RedisTokenProvider redisTokenProvider
     ) {
-        this.jwtProvider = jwtProvider;
         this.handlerExceptionResolver = handlerExceptionResolver;
+        this.jwtProvider = jwtProvider;
+        this.redisTokenProvider = redisTokenProvider;
     }
 
     @Override
@@ -55,7 +60,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
             String token = header.replace(TOKEN_PREFIX, "");
             Claims claims = jwtProvider.parseToken(token);
-            if (claims.get(JwtProvider.TOKEN_TYPE_CLAIM_KEY).equals(JwtTokenType.REFRESH.name())) {
+            if (redisTokenProvider.isBlackList(claims)) {
+                throw new AlreadySignOutTokenException();
+            } else if (claims.get(JwtProvider.TOKEN_TYPE_CLAIM_KEY).equals(JwtTokenType.REFRESH.name())) {
                 throw new UnAuthorizationException("Refresh Token을 사용할 수 없습니다.");
             }
 

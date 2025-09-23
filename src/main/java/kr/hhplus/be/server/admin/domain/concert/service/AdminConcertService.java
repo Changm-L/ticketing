@@ -4,6 +4,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 
 import kr.hhplus.be.server.admin.domain.concert.dto.request.CreateConcertRequest;
 import kr.hhplus.be.server.admin.domain.concert.dto.request.UpdateConcertRequest;
@@ -12,6 +13,7 @@ import kr.hhplus.be.server.admin.domain.concert.dto.response.AdminConcertListRes
 import kr.hhplus.be.server.user.domain.concert.SeatGenerator;
 import kr.hhplus.be.server.user.domain.concert.entity.Concert;
 import kr.hhplus.be.server.user.domain.concert.entity.SeatMaster;
+import kr.hhplus.be.server.user.domain.concert.exception.ConcertNotFoundException;
 import kr.hhplus.be.server.user.domain.concert.repository.ConcertRepository;
 
 @Service
@@ -23,16 +25,17 @@ public class AdminConcertService {
 
     @Transactional(readOnly = true)
     public List<AdminConcertListResponse> findAllConcerts() {
-        return concertRepository.findAll()
-                                .stream()
-                                .map(AdminConcertListResponse::of)
-                                .toList();
+        return concertRepository.findAllAdminConcerts();
     }
 
     @Transactional(readOnly = true)
     public AdminConcertDetailResponse getById(long id) {
-        Concert concert = concertRepository.getById(id);
-        return AdminConcertDetailResponse.of(concert);
+        AdminConcertDetailResponse response = concertRepository.getAdminConcertDetailById(id);
+        if (ObjectUtils.isEmpty(response)) {
+            throw new ConcertNotFoundException();
+        }
+
+        return response;
     }
 
     @Transactional

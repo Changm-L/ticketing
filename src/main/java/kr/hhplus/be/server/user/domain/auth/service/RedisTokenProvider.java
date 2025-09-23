@@ -15,7 +15,8 @@ public class RedisTokenProvider {
     private final        StringRedisTemplate redisTemplate;
     private static final String              REFRESH_TOKEN_PREFIX = "rt:", BLACK_LIST_PREFIX = "bt:";
 
-    public boolean isBlackList(String jti) {
+    public boolean isBlackList(Claims claims) {
+        String jti = claims.getId();
         return Boolean.TRUE.equals(redisTemplate.hasKey(BLACK_LIST_PREFIX + jti));
     }
 

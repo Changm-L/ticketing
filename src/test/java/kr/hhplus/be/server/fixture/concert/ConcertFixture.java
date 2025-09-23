@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.fixture.Concert;
+package kr.hhplus.be.server.fixture.concert;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -9,7 +9,7 @@ import kr.hhplus.be.server.admin.domain.concert.dto.request.CreateConcertRequest
 import kr.hhplus.be.server.user.domain.concert.entity.Concert;
 import kr.hhplus.be.server.user.domain.concert.entity.SeatMaster;
 
-public class AdminConcertFixture {
+public class ConcertFixture {
 
     public static CreateConcertRequest createConcertRequest() {
         return new CreateConcertRequest(

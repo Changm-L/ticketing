@@ -34,8 +34,9 @@ public class AuthService {
             throw new UserAlreadyExistException();
         }
 
-        User user = new User(request);
-        return userRepository.save(user).getId();
+        User user = User.of(request);
+        userRepository.save(user);
+        return user.getId();
     }
 
     @Transactional
@@ -53,10 +54,10 @@ public class AuthService {
 
     @Transactional
     public void signOut(String token) {
-        if (redisTokenProvider.isBlackList(token)) {
+        Claims claims = jwtProvider.parseToken(token);
+        if (redisTokenProvider.isBlackList(claims)) {
             throw new AlreadySignOutTokenException();
         }
-        Claims claims = jwtProvider.parseToken(token);
 
         redisTokenProvider.blackList(claims);
     }
@@ -68,8 +69,7 @@ public class AuthService {
             throw new IllegalArgumentException("Refresh 토큰이 아닙니다.");
         }
 
-        String oldJwtTokenId = claims.getId();
-        if (redisTokenProvider.isBlackList(oldJwtTokenId)) {
+        if (redisTokenProvider.isBlackList(claims)) {
             throw new AlreadySignOutTokenException();
         }
 

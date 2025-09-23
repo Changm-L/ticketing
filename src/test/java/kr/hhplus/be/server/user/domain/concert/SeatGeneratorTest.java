@@ -5,7 +5,7 @@ import java.util.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import kr.hhplus.be.server.fixture.Concert.AdminConcertFixture;
+import kr.hhplus.be.server.fixture.concert.ConcertFixture;
 import kr.hhplus.be.server.user.domain.concert.entity.Concert;
 import kr.hhplus.be.server.user.domain.concert.entity.SeatMaster;
 
@@ -20,7 +20,7 @@ class SeatGeneratorTest {
         @Test
         void concert와_maxSeatNo로_seatBatch를_생성한다() {
             //given
-            Concert concert = AdminConcertFixture.concert();
+            Concert concert = ConcertFixture.concert();
             int maxSeatNo = 50;
 
             //when
