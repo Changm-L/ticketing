@@ -2,10 +2,15 @@ package kr.hhplus.be.server.user.domain.reservation.core.port.in;
 
 import java.util.List;
 
-import kr.hhplus.be.server.user.domain.reservation.presentation.dto.response.PlaceReservationResponse;
+import kr.hhplus.be.server.user.domain.reservation.core.dto.FindAllReservationResponse;
+import kr.hhplus.be.server.user.domain.reservation.core.dto.PlaceReservationResponse;
 
 public interface ReservationUseCase {
-    public PlaceReservationResponse placeReservation();
+    PlaceReservationResponse placeReservation(
+            long userId,
+            long concertId,
+            long seatInventoryId
+    );
 
-    public List<FindAllReservationResponse> findAll();
+    List<FindAllReservationResponse> findAll(long userId);
 }

@@ -2,13 +2,16 @@ package kr.hhplus.be.server.user.domain.reservation.infrastructure.jpa.entity;
 
 import java.math.BigDecimal;
 import jakarta.persistence.*;
+import lombok.Getter;
 
 import kr.hhplus.be.server._core.entity.BaseTimeEntity;
 import kr.hhplus.be.server.user.domain.concert.entity.Concert;
-import kr.hhplus.be.server.user.domain.concert.entity.SeatMaster;
+import kr.hhplus.be.server.user.domain.concert.entity.SeatInventory;
 import kr.hhplus.be.server.user.domain.user.entity.User;
 
 @Entity
+@Getter
+@Table(name = "reservation")
 public class ReservationJpaEntity extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -20,8 +23,8 @@ public class ReservationJpaEntity extends BaseTimeEntity {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "seat_master_id", nullable = false)
-    private SeatMaster seatMaster;
+    @JoinColumn(name = "seat_inventory_id", nullable = false)
+    private SeatInventory seatInventory;
 
     @Column(nullable = false)
     private BigDecimal price;
@@ -31,28 +34,22 @@ public class ReservationJpaEntity extends BaseTimeEntity {
 
     private ReservationJpaEntity(
             Concert concert,
-            SeatMaster seatMaster,
-            User user
+            SeatInventory seatInventory,
+            User user,
+            BigDecimal price
     ) {
         this.concert = concert;
-        this.seatMaster = seatMaster;
+        this.seatInventory = seatInventory;
         this.user = user;
-        this.price = seatMaster.getSeatInventory().getPrice();
+        this.price = price;
     }
 
-    public Concert getConcert() {
-        return concert;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public SeatMaster getSeatMaster() {
-        return seatMaster;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
+    public static ReservationJpaEntity createWith(
+            Concert concert,
+            SeatInventory seatInventory,
+            User user,
+            BigDecimal price
+    ) {
+        return new ReservationJpaEntity(concert, seatInventory, user, price);
     }
 }

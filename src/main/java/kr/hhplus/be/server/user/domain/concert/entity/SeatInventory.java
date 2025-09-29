@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import kr.hhplus.be.server._core.entity.BaseTimeEntity;
 import kr.hhplus.be.server.user.domain.concert.constant.SeatStatus;
+import kr.hhplus.be.server.user.domain.concert.exception.CannotUpdateSeatStatusException;
 
 @Entity
 @Getter
@@ -52,5 +53,22 @@ public class SeatInventory extends BaseTimeEntity {
                 price,
                 SeatStatus.AVAILABLE
         );
+    }
+
+    public void held() {
+        if (this.seatStatus.equals(SeatStatus.AVAILABLE)) {
+            this.seatStatus = SeatStatus.HELD;
+        } else {
+            throw new CannotUpdateSeatStatusException();
+        }
+    }
+
+    public void reserve() {
+        if (this.seatStatus.equals(SeatStatus.AVAILABLE) |
+                this.seatStatus.equals(SeatStatus.HELD)) {
+            this.seatStatus = SeatStatus.RESERVED;
+        } else {
+            throw new CannotUpdateSeatStatusException();
+        }
     }
 }
