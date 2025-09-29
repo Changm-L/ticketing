@@ -54,29 +54,13 @@ public class ReservationPersistenceAdapter implements ReservationPort {
         seatInventory.held();
         reservationJpaRepository.save(entity);
 
-        return Reservation.createWith(
-                entity.getId(),
-                entity.getUser(),
-                entity.getConcert(),
-                entity.getSeatInventory(),
-                entity.getCreatedAt(),
-                entity.getUpdatedAt(),
-                price
-        );
+        return mapper.toDomain(entity, price);
     }
 
     @Override
     public Reservation getById(long id) {
         ReservationJpaEntity entity = reservationJpaRepository.getById(id);
 
-        return Reservation.createWith(
-                entity.getId(),
-                entity.getUser(),
-                entity.getConcert(),
-                entity.getSeatInventory(),
-                entity.getCreatedAt(),
-                entity.getUpdatedAt(),
-                entity.getSeatInventory().getPrice()
-        );
+        return mapper.toDomain(entity, entity.getPrice());
     }
 }
