@@ -38,6 +38,7 @@ public interface WalletRepository extends JpaRepository<Wallet, Long> {
                 FROM WalletLedger wl
                 LEFT JOIN FETCH Wallet w on wl.wallet.id = w.id
                 LEFT JOIN FETCH User u on w.user.id = :userId
+                ORDER BY wl.createdAt DESC
             """)
     List<GetWalletHistoryResponse> getWalletHistoryByUserId(long userId);
 

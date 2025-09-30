@@ -52,9 +52,9 @@ public class ReservationPersistenceAdapter implements ReservationPort {
         );
 
         seatInventory.held();
-        reservationJpaRepository.save(entity);
+        ReservationJpaEntity savedEntity = reservationJpaRepository.save(entity);
 
-        return mapper.toDomain(entity, price);
+        return mapper.toDomain(savedEntity, price);
     }
 
     @Override
