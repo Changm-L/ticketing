@@ -11,10 +11,10 @@ import org.springframework.stereotype.Component;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import kr.hhplus.be.server._core.environment.SecurityProperties;
-import kr.hhplus.be.server.domain.auth.constant.JwtTokenType;
-import kr.hhplus.be.server.domain.auth.dto.response.TokenPair;
-import kr.hhplus.be.server.domain.user.constant.Role;
-import kr.hhplus.be.server.domain.user.entity.User;
+import kr.hhplus.be.server.user.domain.auth.constant.JwtTokenType;
+import kr.hhplus.be.server.user.domain.auth.dto.response.TokenPair;
+import kr.hhplus.be.server.user.domain.user.constant.Role;
+import kr.hhplus.be.server.user.domain.user.entity.User;
 
 @Component
 public class JwtProvider {
@@ -44,13 +44,10 @@ public class JwtProvider {
         Instant accessExpiration = now.plusSeconds(jwtProperties.access().expiration()).plusSeconds(jitter);
         Instant refreshExpiration = now.plusSeconds(jwtProperties.refresh().expiration()).plusSeconds(jitter);
 
-        String accessToken = issueAccessToken(user, accessExpiration, now);
-        String refreshToken = issueRefreshToken(user, refreshExpiration, now);
+        TokenPair.Access accessToken = issueAccessToken(user, accessExpiration, now);
+        TokenPair.Refresh refreshToken = issueRefreshToken(user, refreshExpiration, now);
 
-        return new TokenPair(
-                new TokenPair.Access(accessToken, accessExpiration),
-                new TokenPair.Refresh(refreshToken, refreshExpiration)
-        );
+        return new TokenPair(accessToken, refreshToken);
     }
 
     public Claims parseToken(String token) {
@@ -62,40 +59,42 @@ public class JwtProvider {
                 .getPayload();
     }
 
-    private String issueAccessToken(
+    private TokenPair.Access issueAccessToken(
             User user,
             Instant ttl,
             Instant now
     ) {
         String accessJti = UUID.randomUUID().toString();
 
-
-        return Jwts.builder()
-                   .subject(String.valueOf(user.getId()))
-                   .id(accessJti)
-                   .claim(ROLE_CLAIM_KEY, user.getRole())
-                   .claim(TOKEN_TYPE_CLAIM_KEY, JwtTokenType.ACCESS.toString())
-                   .issuedAt(Date.from(now))
-                   .expiration(Date.from(ttl))
-                   .signWith(accessSecretKey)
-                   .compact();
+        String token = Jwts.builder()
+                           .subject(String.valueOf(user.getId()))
+                           .id(accessJti)
+                           .claim(ROLE_CLAIM_KEY, user.getRole())
+                           .claim(TOKEN_TYPE_CLAIM_KEY, JwtTokenType.ACCESS.toString())
+                           .issuedAt(Date.from(now))
+                           .expiration(Date.from(ttl))
+                           .signWith(accessSecretKey)
+                           .compact();
+        return new TokenPair.Access(token, accessJti, ttl);
     }
 
-    private String issueRefreshToken(
+    private TokenPair.Refresh issueRefreshToken(
             User user,
             Instant ttl,
             Instant now
     ) {
         String refreshJti = UUID.randomUUID().toString();
 
-        return Jwts.builder()
-                   .subject(String.valueOf(user.getId()))
-                   .id(refreshJti)
-                   .issuedAt(Date.from(now))
-                   .claim(TOKEN_TYPE_CLAIM_KEY, JwtTokenType.REFRESH.toString())
-                   .expiration(Date.from(ttl))
-                   .signWith(refreshSecretKey)
-                   .compact();
+        String token = Jwts.builder()
+                           .subject(String.valueOf(user.getId()))
+                           .id(refreshJti)
+                           .issuedAt(Date.from(now))
+                           .claim(TOKEN_TYPE_CLAIM_KEY, JwtTokenType.REFRESH.toString())
+                           .expiration(Date.from(ttl))
+                           .signWith(refreshSecretKey)
+                           .compact();
+
+        return new TokenPair.Refresh(token, refreshJti, ttl);
     }
 
 }

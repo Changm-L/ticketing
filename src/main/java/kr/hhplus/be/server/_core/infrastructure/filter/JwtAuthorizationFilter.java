@@ -5,8 +5,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
@@ -14,18 +14,30 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import kr.hhplus.be.server._core.infrastructure.jwt.JwtProvider;
-import kr.hhplus.be.server.domain.auth.constant.JwtTokenType;
-import kr.hhplus.be.server.domain.auth.exception.UnAuthorizationException;
+import kr.hhplus.be.server.user.domain.auth.constant.JwtTokenType;
+import kr.hhplus.be.server.user.domain.auth.exception.AlreadySignOutTokenException;
+import kr.hhplus.be.server.user.domain.auth.exception.UnAuthorizationException;
+import kr.hhplus.be.server.user.domain.auth.service.RedisTokenProvider;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
-    private final JwtProvider              jwtProvider;
     private final HandlerExceptionResolver handlerExceptionResolver;
+    private final JwtProvider              jwtProvider;
     private final String                   HEADER_STRING = "Authorization";
     private final String                   TOKEN_PREFIX  = "Bearer ";
+    private final RedisTokenProvider       redisTokenProvider;
+
+    public JwtAuthorizationFilter(
+            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver,
+            JwtProvider jwtProvider,
+            RedisTokenProvider redisTokenProvider
+    ) {
+        this.handlerExceptionResolver = handlerExceptionResolver;
+        this.jwtProvider = jwtProvider;
+        this.redisTokenProvider = redisTokenProvider;
+    }
 
     @Override
     protected void doFilterInternal(
@@ -36,7 +48,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         try {
 
             String path = request.getRequestURI();
-            if (path.startsWith("/auth/") || "OPTIONS".equals(request.getMethod())) {
+            if ((path.startsWith("/v1/auth/") && !path.matches("/v1/auth/sign-out")) || "OPTIONS".equals(request.getMethod())) {
                 chain.doFilter(request, response);
                 return;
             }
@@ -48,7 +60,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
             String token = header.replace(TOKEN_PREFIX, "");
             Claims claims = jwtProvider.parseToken(token);
-            if (claims.get(JwtProvider.TOKEN_TYPE_CLAIM_KEY).equals(JwtTokenType.REFRESH.name())) {
+            if (redisTokenProvider.isBlackList(claims)) {
+                throw new AlreadySignOutTokenException();
+            } else if (claims.get(JwtProvider.TOKEN_TYPE_CLAIM_KEY).equals(JwtTokenType.REFRESH.name())) {
                 throw new UnAuthorizationException("Refresh Token을 사용할 수 없습니다.");
             }
 
@@ -56,6 +70,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             request.setAttribute("token", token);
             chain.doFilter(request, response);
         } catch (JwtException e) {
+            log.warn(e.getMessage());
             handlerExceptionResolver.resolveException(
                     request,
                     response,
@@ -63,6 +78,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                     new UnAuthorizationException("유효하지 않은 토큰입니다.")
             );
         } catch (UnAuthorizationException e) {
+            log.warn(e.getMessage());
             handlerExceptionResolver.resolveException(request, response, null, e);
         } catch (Exception e) {
             log.error("인증 시 에러가 발생했습니다. 메세지: {}", e.getMessage());

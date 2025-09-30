@@ -16,8 +16,8 @@ spring:
     generate-ddl: false
     show-sql: false
     hibernate:
-      # 운영 상황 시 none이지만 현재 프로젝트는 create-drop으로 진행
-      ddl-auto: create-drop
+      # 운영 상황 시 none이지만 현재 프로젝트는 update 진행
+      ddl-auto: update
     properties:
       hibernate.timezone.default_storage: NORMALIZE_UTC
       hibernate.jdbc.time_zone: UTC
@@ -36,6 +36,10 @@ spring.config.activate.on-profile: local, test
 
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/hhplus?characterEncoding=UTF-8&serverTimezone=UTC
+    url: jdbc:mysql://localhost:53306/hhplus?characterEncoding=UTF-8&serverTimezone=UTC
     username: application
     password: application
+  data:
+    redis:
+      host: localhost
+      port: 56379

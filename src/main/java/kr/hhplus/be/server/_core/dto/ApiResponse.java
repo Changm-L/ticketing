@@ -4,6 +4,9 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import kr.hhplus.be.server._core.dto.response.CreateRes;
+import kr.hhplus.be.server._core.dto.response.UpdateRes;
+
 public class ApiResponse {
 
     private static <T> ResponseEntity<SingleResult<T>> of(HttpStatus status, T data) {
@@ -31,7 +34,15 @@ public class ApiResponse {
     }
 
     public static ResponseEntity<CommonResult> failedOf(HttpStatus status, String message) {
-        return ResponseEntity.status(status).body(new CommonResult(message));
+        return ResponseEntity.status(status).body(new CommonResult(true, message));
+    }
+
+    public static ResponseEntity<SingleResult<CreateRes>> create(long id) {
+        return ApiResponse.of(HttpStatus.CREATED, new CreateRes(id));
+    }
+
+    public static ResponseEntity<SingleResult<UpdateRes>> update(long id) {
+        return ApiResponse.of(HttpStatus.OK, new UpdateRes(id));
     }
 
     /*
