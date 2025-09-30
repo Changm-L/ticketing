@@ -1,9 +1,9 @@
 package kr.hhplus.be.server.user.domain.wallet.exception;
 
-public class NotFoundWalletException extends WalletException {
+public class WalletNotFoundException extends WalletException {
     public static final String MESSAGE = "지갑을 찾을 수 없습니다.";
 
-    public NotFoundWalletException() {
+    public WalletNotFoundException() {
         super(MESSAGE);
     }
 }

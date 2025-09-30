@@ -74,7 +74,7 @@ public class AuthService {
         }
 
         long userId = Long.parseLong(claims.getSubject());
-        User user = userRepository.getUserById(userId);
+        User user = userRepository.getById(userId);
         redisTokenProvider.blackList(claims);
 
         TokenPair pair = jwtProvider.issueTokens(user);

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import kr.hhplus.be.server.user.domain.wallet.dto.response.GetBalanceResponse;
 import kr.hhplus.be.server.user.domain.wallet.dto.response.GetWalletHistoryResponse;
 import kr.hhplus.be.server.user.domain.wallet.entity.Wallet;
-import kr.hhplus.be.server.user.domain.wallet.exception.NotFoundWalletException;
+import kr.hhplus.be.server.user.domain.wallet.exception.WalletNotFoundException;
 
 @Repository
 public interface WalletRepository extends JpaRepository<Wallet, Long> {
@@ -24,7 +24,7 @@ public interface WalletRepository extends JpaRepository<Wallet, Long> {
     GetBalanceResponse getWalletBalanceBy(long userId);
 
     default Wallet getWalletByUserId(long userId) {
-        return findWalletByUserId(userId).orElseThrow(NotFoundWalletException::new);
+        return findWalletByUserId(userId).orElseThrow(WalletNotFoundException::new);
     }
 
     @Query("""
@@ -38,6 +38,7 @@ public interface WalletRepository extends JpaRepository<Wallet, Long> {
                 FROM WalletLedger wl
                 LEFT JOIN FETCH Wallet w on wl.wallet.id = w.id
                 LEFT JOIN FETCH User u on w.user.id = :userId
+                ORDER BY wl.createdAt DESC
             """)
     List<GetWalletHistoryResponse> getWalletHistoryByUserId(long userId);
 

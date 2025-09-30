@@ -9,10 +9,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import kr.hhplus.be.server._core.entity.BaseTimeEntity;
+import kr.hhplus.be.server.user.domain.payment.core.exception.InsufficientBalanceException;
 import kr.hhplus.be.server.user.domain.user.entity.User;
 import kr.hhplus.be.server.user.domain.wallet.constant.TransactionType;
 import kr.hhplus.be.server.user.domain.wallet.exception.InvalidChargeAmountException;
 
+/**
+ * TODO: 예약 대기 금액 필드 생성 후
+ *  예약 시 balance - 에약 금액
+ *  예약 완료 시 에약 대기 금액 차감
+ */
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -62,5 +68,23 @@ public class Wallet extends BaseTimeEntity {
         );
 
         walletLedgers.add(walletLedger);
+    }
+
+    public BigDecimal use(BigDecimal amount) {
+        if (this.balance.compareTo(amount) < 0) {
+            throw new InsufficientBalanceException();
+        }
+
+        this.balance = this.balance.subtract(amount);
+
+        WalletLedger walletLedger = WalletLedger.of(
+                this,
+                TransactionType.USE,
+                amount,
+                this.balance
+        );
+        walletLedgers.add(walletLedger);
+
+        return this.balance;
     }
 }
