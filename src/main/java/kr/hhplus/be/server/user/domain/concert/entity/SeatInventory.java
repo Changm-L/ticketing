@@ -64,8 +64,7 @@ public class SeatInventory extends BaseTimeEntity {
     }
 
     public void reserve() {
-        if (this.seatStatus.equals(SeatStatus.AVAILABLE) |
-                this.seatStatus.equals(SeatStatus.HELD)) {
+        if (this.seatStatus.equals(SeatStatus.HELD)) {
             this.seatStatus = SeatStatus.RESERVED;
         } else {
             throw new CannotUpdateSeatStatusException();
