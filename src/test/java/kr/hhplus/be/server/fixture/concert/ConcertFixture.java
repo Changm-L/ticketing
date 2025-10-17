@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.fixture.concert_tmp;
+package kr.hhplus.be.server.fixture.concert;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

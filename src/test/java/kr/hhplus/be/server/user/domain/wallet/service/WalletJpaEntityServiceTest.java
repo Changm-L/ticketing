@@ -7,15 +7,15 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import kr.hhplus.be.server.fixture.auth.AuthFixture;
-import kr.hhplus.be.server.user.domain.user.entity.User;
-import kr.hhplus.be.server.user.domain.wallet.constant.TransactionType;
-import kr.hhplus.be.server.user.domain.wallet.dto.request.WalletChargeRequest;
-import kr.hhplus.be.server.user.domain.wallet.dto.response.GetBalanceResponse;
-import kr.hhplus.be.server.user.domain.wallet.dto.response.GetWalletHistoryResponse;
-import kr.hhplus.be.server.user.domain.wallet.dto.response.WalletChargeResponse;
-import kr.hhplus.be.server.user.domain.wallet.entity.Wallet;
-import kr.hhplus.be.server.user.domain.wallet.repository.WalletRepository;
+import kr.hhplus.be.server.user.domain.wallet.application.service.WalletService;
+import kr.hhplus.be.server.user.domain.wallet.core.constant.TransactionType;
+import kr.hhplus.be.server.user.domain.wallet.core.dto.GetBalanceResponse;
+import kr.hhplus.be.server.user.domain.wallet.core.dto.GetWalletHistoryResponse;
+import kr.hhplus.be.server.user.domain.wallet.core.dto.WalletChargeResponse;
+import kr.hhplus.be.server.user.domain.wallet.core.model.Wallet;
+import kr.hhplus.be.server.user.domain.wallet.core.model.WalletLedger;
+import kr.hhplus.be.server.user.domain.wallet.core.port.out.WalletPort;
+import kr.hhplus.be.server.user.domain.wallet.presentation.dto.WalletChargeRequest;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 class WalletServiceTest {
 
     @Mock
-    private WalletRepository walletRepository;
+    private WalletPort walletPort;
 
     @InjectMocks
     private WalletService walletService;
@@ -41,7 +41,7 @@ class WalletServiceTest {
         GetBalanceResponse expected = new GetBalanceResponse(
                 BigDecimal.valueOf(10000L)
         );
-        when(walletRepository.getWalletBalanceBy(userId)).thenReturn(expected);
+        when(walletPort.getWalletBalanceBy(userId)).thenReturn(expected);
 
         //when
         GetBalanceResponse result = walletService.getBalanceBy(userId);
@@ -50,7 +50,7 @@ class WalletServiceTest {
         assertEquals(expected, result);
         assertThat(result.balance()).isEqualTo(expected.balance());
         assertThat(result.balance()).isPositive();
-        verify(walletRepository).getWalletBalanceBy(userId);
+        verify(walletPort).getWalletBalanceBy(userId);
     }
 
     @Test
@@ -59,12 +59,26 @@ class WalletServiceTest {
         long userId = 1L;
         BigDecimal amount = BigDecimal.valueOf(10000L);
 
-        User user = AuthFixture.user();
-        Wallet wallet = Wallet.of(user);
+        WalletLedger walletLedger = WalletLedger.of(
+                1L,
+                TransactionType.USE,
+                BigDecimal.ZERO,
+                amount
+        );
+        List<WalletLedger> walletLedgers = List.of(walletLedger);
+        Wallet wallet = Wallet.createWith(
+                1L,
+                userId,
+                BigDecimal.ZERO,
+                walletLedgers,
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
+
         WalletChargeRequest request = new WalletChargeRequest(amount);
         WalletChargeResponse expected = new WalletChargeResponse(TransactionType.CHARGE, amount);
 
-        when(walletRepository.getWalletByUserId(userId)).thenReturn(wallet);
+        when(walletPort.getWalletByUserId(userId)).thenReturn(wallet);
 
         //when
         WalletChargeResponse result = walletService.charge(userId, request);
@@ -72,6 +86,7 @@ class WalletServiceTest {
         //then
         assertEquals(expected, result);
         assertThat(wallet.getBalance()).isEqualTo(amount);
+        assertThat(wallet.getWalletLedgers().get(0).getBalanceAfter()).isEqualTo(amount);
     }
 
     @Test
@@ -87,7 +102,7 @@ class WalletServiceTest {
                         LocalDateTime.now()
                 )
         );
-        when(walletRepository.getWalletHistoryByUserId(userId)).thenReturn(expected);
+        when(walletPort.getWalletHistoryByUserId(userId)).thenReturn(expected);
 
         //when
         List<GetWalletHistoryResponse> result = walletService.getWalletHistory(userId);
@@ -95,7 +110,7 @@ class WalletServiceTest {
         //then
         assertEquals(expected, result);
         assertThat(result.isEmpty()).isFalse();
-        verify(walletRepository).getWalletHistoryByUserId(userId);
+        verify(walletPort).getWalletHistoryByUserId(userId);
     }
 
 }

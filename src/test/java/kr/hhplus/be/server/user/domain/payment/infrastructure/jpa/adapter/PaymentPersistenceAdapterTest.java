@@ -22,8 +22,8 @@ import kr.hhplus.be.server.user.domain.payment.infrastructure.jpa.repository.Pay
 import kr.hhplus.be.server.user.domain.reservation.core.model.Reservation;
 import kr.hhplus.be.server.user.domain.reservation.infrastructure.jpa.entity.ReservationJpaEntity;
 import kr.hhplus.be.server.user.domain.user.entity.User;
-import kr.hhplus.be.server.user.domain.wallet.entity.Wallet;
-import kr.hhplus.be.server.user.domain.wallet.repository.WalletRepository;
+import kr.hhplus.be.server.user.domain.wallet.infrastructure.jpa.entity.WalletJpaEntity;
+import kr.hhplus.be.server.user.domain.wallet.infrastructure.jpa.repository.WalletJpaRepository;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -41,7 +41,7 @@ class PaymentPersistenceAdapterTest {
     private PaymentJpaRepository paymentJpaRepository;
 
     @Mock
-    private WalletRepository walletRepository;
+    private WalletJpaRepository walletJpaRepository;
 
     @InjectMocks
     private PaymentPersistenceAdapter paymentPersistenceAdapter;
@@ -73,13 +73,14 @@ class PaymentPersistenceAdapterTest {
     void pay() {
         long reservationId = 1L;
         User user = spy(AuthFixture.user());
-        Wallet wallet = mock(Wallet.class);
+        WalletJpaEntity walletJpaEntity = mock(WalletJpaEntity.class);
         BigDecimal price = BigDecimal.valueOf(10000L);
         Concert concert = ConcertFixture.concert();
         SeatInventory seatInventory = ConcertFixture.seatMasterList().get(0).getSeatInventory();
 
         ReflectionTestUtils.setField(seatInventory, "id", 1L);
-        wallet.charge(price);
+        ReflectionTestUtils.setField(seatInventory, "seatStatus", SeatStatus.HELD);
+        walletJpaEntity.charge(price);
 
         Reservation reservation = Reservation.createWith(
                 reservationId, user, concert, seatInventory,
@@ -98,11 +99,11 @@ class PaymentPersistenceAdapterTest {
         when(entityManager.getReference(SeatInventory.class, 1L)).thenReturn(seatInventory);
 
         //when
-        Payment result = paymentPersistenceAdapter.pay(reservation, wallet);
+        Payment result = paymentPersistenceAdapter.pay(reservation, walletJpaEntity);
 
         //then
         assertEquals(result.getPrice(), paymentJpaEntity.getPrice());
         assertEquals(SeatStatus.RESERVED, seatInventory.getSeatStatus());
-        verify(wallet).use(price);
+        verify(walletJpaEntity).use(price);
     }
 }

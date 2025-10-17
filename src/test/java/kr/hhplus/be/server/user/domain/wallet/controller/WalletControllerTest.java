@@ -2,6 +2,8 @@ package kr.hhplus.be.server.user.domain.wallet.controller;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -12,12 +14,13 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.hhplus.be.server.core.utils.ControllerTest;
-import kr.hhplus.be.server.user.domain.wallet.constant.TransactionType;
-import kr.hhplus.be.server.user.domain.wallet.dto.request.WalletChargeRequest;
-import kr.hhplus.be.server.user.domain.wallet.dto.response.GetBalanceResponse;
-import kr.hhplus.be.server.user.domain.wallet.dto.response.GetWalletHistoryResponse;
-import kr.hhplus.be.server.user.domain.wallet.dto.response.WalletChargeResponse;
-import kr.hhplus.be.server.user.domain.wallet.service.WalletService;
+import kr.hhplus.be.server.user.domain.wallet.application.service.WalletService;
+import kr.hhplus.be.server.user.domain.wallet.core.constant.TransactionType;
+import kr.hhplus.be.server.user.domain.wallet.core.dto.GetBalanceResponse;
+import kr.hhplus.be.server.user.domain.wallet.core.dto.GetWalletHistoryResponse;
+import kr.hhplus.be.server.user.domain.wallet.core.dto.WalletChargeResponse;
+import kr.hhplus.be.server.user.domain.wallet.presentation.controller.WalletController;
+import kr.hhplus.be.server.user.domain.wallet.presentation.dto.WalletChargeRequest;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -36,6 +39,8 @@ class WalletControllerTest {
 
     @MockitoBean
     private WalletService walletService;
+
+    private final DateTimeFormatter MICRO_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS");
 
     @Test
     void getBalance() throws Exception {
@@ -107,6 +112,10 @@ class WalletControllerTest {
                .andExpect(jsonPath("$.data[0].amount").value(history1.amount()))
                .andExpect(jsonPath("$.data[0].balanceAfter").value(history1.balanceAfter()))
                .andExpect(jsonPath("$.data[0].type").value(history1.type().name()))
-               .andExpect(jsonPath("$.data[0].updatedAt").value(history1.updatedAt().toString()));
+               .andExpect(jsonPath("$.data[0].updatedAt").value(history1
+                                                                        .updatedAt()
+                                                                        .truncatedTo(ChronoUnit.MICROS)
+                                                                        .format(MICRO_FMT)));
+
     }
 }

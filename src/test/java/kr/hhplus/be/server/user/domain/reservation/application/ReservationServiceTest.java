@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -138,6 +139,7 @@ class ReservationServiceTest {
             long seatInventoryId = 1L;
 
             SeatInventory seatInventory = SeatInventory.of(null, BigDecimal.valueOf(10000L));
+            ReflectionTestUtils.setField(seatInventory, "seatStatus", SeatStatus.HELD);
             seatInventory.reserve();
             when(seatInventoryReadRepository.findByConcertIdAndSeatInventoryId(concertId, seatInventoryId)).thenReturn(
                     Optional.of(seatInventory)

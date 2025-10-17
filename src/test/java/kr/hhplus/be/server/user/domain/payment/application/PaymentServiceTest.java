@@ -22,7 +22,7 @@ import kr.hhplus.be.server.user.domain.reservation.core.model.Reservation;
 import kr.hhplus.be.server.user.domain.reservation.core.port.out.ReservationPort;
 import kr.hhplus.be.server.user.domain.user.entity.User;
 import kr.hhplus.be.server.user.domain.user.repository.UserRepository;
-import kr.hhplus.be.server.user.domain.wallet.entity.Wallet;
+import kr.hhplus.be.server.user.domain.wallet.infrastructure.jpa.entity.WalletJpaEntity;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -60,7 +60,7 @@ class PaymentServiceTest {
 
         //then
         assertEquals(expected.size(), result.size());
-        verify(reservationPort).findAllByUserId(userId);
+        verify(paymentPort).findAllByUserId(userId);
     }
 
     @Nested
@@ -72,7 +72,7 @@ class PaymentServiceTest {
             long reservationId = 1L;
             BigDecimal price = BigDecimal.valueOf(10000L);
             User user = spy(AuthFixture.user());
-            Wallet wallet = mock(Wallet.class);
+            WalletJpaEntity walletJpaEntity = mock(WalletJpaEntity.class);
 
             Concert concert = ConcertFixture.concert();
             SeatInventory seatInventory = ConcertFixture.seatMasterList().get(0).getSeatInventory();
@@ -95,9 +95,9 @@ class PaymentServiceTest {
             );
             when(reservationPort.getById(reservationId)).thenReturn(reservation);
             when(userRepository.getById(userId)).thenReturn(user);
-            when(paymentPort.pay(reservation, wallet)).thenReturn(payment);
-            when(user.getWallet()).thenReturn(wallet);
-            when(wallet.getBalance()).thenReturn(BigDecimal.valueOf(10000L));
+            when(paymentPort.pay(reservation, walletJpaEntity)).thenReturn(payment);
+            when(user.getWalletJpaEntity()).thenReturn(walletJpaEntity);
+            when(walletJpaEntity.getBalance()).thenReturn(BigDecimal.valueOf(10000L));
 
             //when
             PaymentResponse result = paymentService.payment(userId, reservationId);
@@ -105,7 +105,7 @@ class PaymentServiceTest {
             //then
             verify(reservationPort).getById(reservationId);
             verify(userRepository).getById(userId);
-            verify(paymentPort).pay(reservation, wallet);
+            verify(paymentPort).pay(reservation, walletJpaEntity);
             assertEquals(payment.getPrice(), result.price());
         }
 
@@ -116,7 +116,7 @@ class PaymentServiceTest {
             long reservationId = 1L;
             BigDecimal price = BigDecimal.valueOf(10000L);
             User user = spy(AuthFixture.user());
-            Wallet wallet = mock(Wallet.class);
+            WalletJpaEntity walletJpaEntity = mock(WalletJpaEntity.class);
 
             Concert concert = ConcertFixture.concert();
             SeatInventory seatInventory = ConcertFixture.seatMasterList().get(0).getSeatInventory();
@@ -139,8 +139,8 @@ class PaymentServiceTest {
             );
             when(reservationPort.getById(reservationId)).thenReturn(reservation);
             when(userRepository.getById(userId)).thenReturn(user);
-            when(user.getWallet()).thenReturn(wallet);
-            when(wallet.getBalance()).thenReturn(BigDecimal.valueOf(5000L));
+            when(user.getWalletJpaEntity()).thenReturn(walletJpaEntity);
+            when(walletJpaEntity.getBalance()).thenReturn(BigDecimal.valueOf(5000L));
 
             //when & then
             assertThrows(
