@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.user.domain.wallet.dto.response;
+package kr.hhplus.be.server.user.domain.wallet.core.dto;
 
 import java.math.BigDecimal;
 

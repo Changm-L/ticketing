@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.user.domain.wallet.controller;
+package kr.hhplus.be.server.user.domain.wallet.presentation.controller;
 
 import java.util.List;
 import jakarta.validation.Valid;
@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.*;
 import kr.hhplus.be.server._core.dto.ApiResponse;
 import kr.hhplus.be.server._core.dto.ListResult;
 import kr.hhplus.be.server._core.dto.SingleResult;
-import kr.hhplus.be.server.user.domain.wallet.dto.request.WalletChargeRequest;
-import kr.hhplus.be.server.user.domain.wallet.dto.response.GetBalanceResponse;
-import kr.hhplus.be.server.user.domain.wallet.dto.response.GetWalletHistoryResponse;
-import kr.hhplus.be.server.user.domain.wallet.dto.response.WalletChargeResponse;
-import kr.hhplus.be.server.user.domain.wallet.service.WalletService;
+import kr.hhplus.be.server.user.domain.wallet.presentation.dto.WalletChargeRequest;
+import kr.hhplus.be.server.user.domain.wallet.core.dto.GetBalanceResponse;
+import kr.hhplus.be.server.user.domain.wallet.core.dto.GetWalletHistoryResponse;
+import kr.hhplus.be.server.user.domain.wallet.core.dto.WalletChargeResponse;
+import kr.hhplus.be.server.user.domain.wallet.application.service.WalletService;
 
 @RestController
 @RequiredArgsConstructor

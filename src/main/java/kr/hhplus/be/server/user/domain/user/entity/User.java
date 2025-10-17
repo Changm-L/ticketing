@@ -9,7 +9,7 @@ import kr.hhplus.be.server._core.entity.BaseTimeEntity;
 import kr.hhplus.be.server._core.infrastructure.convertor.PasswordConverter;
 import kr.hhplus.be.server.user.domain.auth.dto.request.SignUpRequest;
 import kr.hhplus.be.server.user.domain.user.constant.Role;
-import kr.hhplus.be.server.user.domain.wallet.entity.Wallet;
+import kr.hhplus.be.server.user.domain.wallet.infrastructure.jpa.entity.WalletJpaEntity;
 
 @Entity
 @Getter
@@ -31,7 +31,7 @@ public class User extends BaseTimeEntity {
     private Role role;
 
     @OneToOne(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-    private Wallet wallet;
+    private WalletJpaEntity walletJpaEntity;
 
     private User(
             String email,
@@ -45,8 +45,8 @@ public class User extends BaseTimeEntity {
         this.role = role;
     }
 
-    private void setWallet(Wallet wallet) {
-        this.wallet = wallet;
+    private void setWalletJpaEntity(WalletJpaEntity walletJpaEntity) {
+        this.walletJpaEntity = walletJpaEntity;
     }
 
     public static User of(SignUpRequest request) {
@@ -56,8 +56,8 @@ public class User extends BaseTimeEntity {
                 request.password(),
                 Role.USER
         );
-        Wallet wallet = Wallet.of(user);
-        user.setWallet(wallet);
+        WalletJpaEntity walletJpaEntity = WalletJpaEntity.of(user);
+        user.setWalletJpaEntity(walletJpaEntity);
 
         return user;
 

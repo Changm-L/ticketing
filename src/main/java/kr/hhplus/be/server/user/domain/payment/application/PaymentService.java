@@ -15,7 +15,7 @@ import kr.hhplus.be.server.user.domain.reservation.core.model.Reservation;
 import kr.hhplus.be.server.user.domain.reservation.core.port.out.ReservationPort;
 import kr.hhplus.be.server.user.domain.user.entity.User;
 import kr.hhplus.be.server.user.domain.user.repository.UserRepository;
-import kr.hhplus.be.server.user.domain.wallet.entity.Wallet;
+import kr.hhplus.be.server.user.domain.wallet.infrastructure.jpa.entity.WalletJpaEntity;
 
 @Service
 @RequiredArgsConstructor
@@ -42,12 +42,12 @@ public class PaymentService implements PaymentUseCase {
         Reservation reservation = reservationPort.getById(reservationId);
 
         User user = userRepository.getById(userId);
-        Wallet wallet = user.getWallet();
-        if (reservation.getPrice().compareTo(wallet.getBalance()) > 0) {
+        WalletJpaEntity walletJpaEntity = user.getWalletJpaEntity();
+        if (reservation.getPrice().compareTo(walletJpaEntity.getBalance()) > 0) {
             throw new InsufficientBalanceException();
         }
 
-        Payment payment = paymentPort.pay(reservation, wallet);
+        Payment payment = paymentPort.pay(reservation, walletJpaEntity);
 
         return PaymentResponse.of(reservationId, payment.getPrice());
     }

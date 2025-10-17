@@ -1,8 +1,8 @@
-package kr.hhplus.be.server.user.domain.wallet.dto.response;
+package kr.hhplus.be.server.user.domain.wallet.core.dto;
 
 import java.math.BigDecimal;
 
-import kr.hhplus.be.server.user.domain.wallet.constant.TransactionType;
+import kr.hhplus.be.server.user.domain.wallet.core.constant.TransactionType;
 
 public record WalletChargeResponse(
         TransactionType type,

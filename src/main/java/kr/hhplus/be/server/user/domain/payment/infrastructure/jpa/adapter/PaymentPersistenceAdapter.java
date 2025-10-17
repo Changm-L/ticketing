@@ -14,8 +14,8 @@ import kr.hhplus.be.server.user.domain.payment.infrastructure.jpa.repository.Pay
 import kr.hhplus.be.server.user.domain.reservation.core.model.Reservation;
 import kr.hhplus.be.server.user.domain.reservation.infrastructure.jpa.entity.ReservationJpaEntity;
 import kr.hhplus.be.server.user.domain.user.entity.User;
-import kr.hhplus.be.server.user.domain.wallet.entity.Wallet;
-import kr.hhplus.be.server.user.domain.wallet.repository.WalletRepository;
+import kr.hhplus.be.server.user.domain.wallet.infrastructure.jpa.entity.WalletJpaEntity;
+import kr.hhplus.be.server.user.domain.wallet.infrastructure.jpa.repository.WalletJpaRepository;
 
 @Component
 @RequiredArgsConstructor
@@ -23,7 +23,7 @@ public class PaymentPersistenceAdapter implements PaymentPort {
 
     private final EntityManager        entityManager;
     private final PaymentJpaRepository paymentJpaRepository;
-    private final WalletRepository     walletRepository;
+    private final WalletJpaRepository  walletJpaRepository;
 
     @Override
     public List<FindAllPaymentResponse> findAllByUserId(long userId) {
@@ -33,7 +33,7 @@ public class PaymentPersistenceAdapter implements PaymentPort {
     @Override
     public Payment pay(
             Reservation reservation,
-            Wallet wallet
+            WalletJpaEntity walletJpaEntity
     ) {
         User userRef = entityManager.getReference(User.class, reservation.getUserId());
         ReservationJpaEntity reservationJpaEntityRef = entityManager.getReference(
@@ -53,8 +53,8 @@ public class PaymentPersistenceAdapter implements PaymentPort {
         seatInventoryRef.reserve();
         paymentJpaRepository.save(paymentJpaEntity);
 
-        wallet.use(paymentJpaEntity.getPrice());
-        walletRepository.save(wallet);
+        walletJpaEntity.use(paymentJpaEntity.getPrice());
+        walletJpaRepository.save(walletJpaEntity);
 
         return Payment.createWith(
                 paymentJpaEntity.getId(),
