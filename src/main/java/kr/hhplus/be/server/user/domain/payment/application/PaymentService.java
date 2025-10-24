@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.entity.SeatInventoryJpaEntity;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.repository.SeatInventoryReadRepository;
 import kr.hhplus.be.server.user.domain.payment.core.dto.FindAllPaymentResponse;
 import kr.hhplus.be.server.user.domain.payment.core.dto.PaymentResponse;
 import kr.hhplus.be.server.user.domain.payment.core.exception.InsufficientBalanceException;
@@ -13,17 +15,17 @@ import kr.hhplus.be.server.user.domain.payment.core.port.in.PaymentUseCase;
 import kr.hhplus.be.server.user.domain.payment.core.port.out.PaymentPort;
 import kr.hhplus.be.server.user.domain.reservation.core.model.Reservation;
 import kr.hhplus.be.server.user.domain.reservation.core.port.out.ReservationPort;
-import kr.hhplus.be.server.user.domain.user.entity.User;
-import kr.hhplus.be.server.user.domain.user.repository.UserRepository;
-import kr.hhplus.be.server.user.domain.wallet.infrastructure.jpa.entity.WalletJpaEntity;
+import kr.hhplus.be.server.user.domain.wallet.core.model.Wallet;
+import kr.hhplus.be.server.user.domain.wallet.core.port.out.WalletPort;
 
 @Service
 @RequiredArgsConstructor
 public class PaymentService implements PaymentUseCase {
 
-    private final PaymentPort     paymentPort;
-    private final UserRepository  userRepository;
-    private final ReservationPort reservationPort;
+    private final PaymentPort                 paymentPort;
+    private final WalletPort                  walletPort;
+    private final ReservationPort             reservationPort;
+    private final SeatInventoryReadRepository seatInventoryReadRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -41,13 +43,15 @@ public class PaymentService implements PaymentUseCase {
     ) {
         Reservation reservation = reservationPort.getById(reservationId);
 
-        User user = userRepository.getById(userId);
-        WalletJpaEntity walletJpaEntity = user.getWalletJpaEntity();
-        if (reservation.getPrice().compareTo(walletJpaEntity.getBalance()) > 0) {
+        Wallet wallet = walletPort.getWalletByUserId(userId);
+        if (reservation.getPrice().compareTo(wallet.getBalance()) > 0) {
             throw new InsufficientBalanceException();
         }
 
-        Payment payment = paymentPort.pay(reservation, walletJpaEntity);
+        SeatInventoryJpaEntity seatInventoryJpaEntity = seatInventoryReadRepository.getById(reservation.getSeatInventoryId());
+        seatInventoryJpaEntity.reserve();
+        wallet.use(seatInventoryJpaEntity.getPrice());
+        Payment payment = paymentPort.pay(reservation, wallet);
 
         return PaymentResponse.of(reservationId, payment.getPrice());
     }

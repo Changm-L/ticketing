@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import kr.hhplus.be.server.user.domain.reservation.core.model.Reservation;
-import kr.hhplus.be.server.user.domain.user.entity.User;
+import kr.hhplus.be.server.user.domain.user.infrastructure.jpa.entity.UserJpaEntity;
 
 public class Payment {
     private long          id;
@@ -32,7 +32,7 @@ public class Payment {
 
     public static Payment createWith(
             long id,
-            User user,
+            UserJpaEntity userJpaEntity,
             Reservation reservation,
             BigDecimal price,
             LocalDateTime createdAt,
@@ -40,7 +40,7 @@ public class Payment {
     ) {
         return new Payment(
                 id,
-                user.getId(),
+                userJpaEntity.getId(),
                 reservation.getId(),
                 price,
                 createdAt,

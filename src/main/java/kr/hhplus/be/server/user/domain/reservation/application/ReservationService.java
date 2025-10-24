@@ -6,12 +6,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import kr.hhplus.be.server.user.domain.concert.constant.SeatStatus;
-import kr.hhplus.be.server.user.domain.concert.entity.SeatInventory;
-import kr.hhplus.be.server.user.domain.concert.repository.SeatInventoryReadRepository;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.entity.SeatInventoryJpaEntity;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.repository.SeatInventoryReadRepository;
 import kr.hhplus.be.server.user.domain.reservation.core.dto.FindAllReservationResponse;
 import kr.hhplus.be.server.user.domain.reservation.core.dto.PlaceReservationResponse;
-import kr.hhplus.be.server.user.domain.reservation.core.exception.AlreadyReservedException;
 import kr.hhplus.be.server.user.domain.reservation.core.model.Reservation;
 import kr.hhplus.be.server.user.domain.reservation.core.port.in.ReservationUseCase;
 import kr.hhplus.be.server.user.domain.reservation.core.port.out.ReservationPort;
@@ -37,7 +35,7 @@ public class ReservationService implements ReservationUseCase {
             long concertId,
             long seatInventoryId
     ) {
-        Optional<SeatInventory> si = seatInventoryReadRepository.findByConcertIdAndSeatInventoryId(
+        Optional<SeatInventoryJpaEntity> si = seatInventoryReadRepository.findByConcertIdAndSeatInventoryId(
                 concertId,
                 seatInventoryId
         );
@@ -45,10 +43,8 @@ public class ReservationService implements ReservationUseCase {
             throw new SeatNotFoundException();
         }
 
-        SeatInventory seatInventory = si.get();
-        if (seatInventory.getSeatStatus() != SeatStatus.AVAILABLE) {
-            throw new AlreadyReservedException();
-        }
+        SeatInventoryJpaEntity seatInventoryJpaEntity = si.get();
+        seatInventoryJpaEntity.held();
 
         Reservation reservation = reservationPort.place(userId, concertId, seatInventoryId);
 

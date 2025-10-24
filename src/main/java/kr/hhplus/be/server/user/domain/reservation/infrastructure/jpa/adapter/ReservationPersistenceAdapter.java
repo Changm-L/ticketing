@@ -6,9 +6,9 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import kr.hhplus.be.server.user.domain.concert.entity.Concert;
-import kr.hhplus.be.server.user.domain.concert.entity.SeatInventory;
-import kr.hhplus.be.server.user.domain.concert.repository.SeatInventoryReadRepository;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.entity.ConcertJpaEntity;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.entity.SeatInventoryJpaEntity;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.repository.SeatInventoryReadRepository;
 import kr.hhplus.be.server.user.domain.reservation.core.dto.FindAllReservationResponse;
 import kr.hhplus.be.server.user.domain.reservation.core.model.Reservation;
 import kr.hhplus.be.server.user.domain.reservation.core.port.out.ReservationPort;
@@ -16,7 +16,7 @@ import kr.hhplus.be.server.user.domain.reservation.infrastructure.jpa.entity.Res
 import kr.hhplus.be.server.user.domain.reservation.infrastructure.jpa.mapper.ReservationMapper;
 import kr.hhplus.be.server.user.domain.reservation.infrastructure.jpa.repository.ReservationJpaRepository;
 import kr.hhplus.be.server.user.domain.seat.exception.SeatNotFoundException;
-import kr.hhplus.be.server.user.domain.user.entity.User;
+import kr.hhplus.be.server.user.domain.user.infrastructure.jpa.entity.UserJpaEntity;
 
 @Component
 @RequiredArgsConstructor
@@ -38,20 +38,19 @@ public class ReservationPersistenceAdapter implements ReservationPort {
             long concertId,
             long seatInventoryId
     ) {
-        Concert concertRef = entityManager.getReference(Concert.class, concertId);
-        User userRef = entityManager.getReference(User.class, userId);
-        SeatInventory seatInventory = seatInventoryReadRepository.getById(seatInventoryId);
+        ConcertJpaEntity concertJpaEntityRef = entityManager.getReference(ConcertJpaEntity.class, concertId);
+        UserJpaEntity userJpaEntityRef = entityManager.getReference(UserJpaEntity.class, userId);
+        SeatInventoryJpaEntity seatInventoryJpaEntity = seatInventoryReadRepository.getById(seatInventoryId);
         BigDecimal price = seatInventoryReadRepository.getPriceBy(concertId, seatInventoryId).orElseThrow(
                 SeatNotFoundException::new);
 
         ReservationJpaEntity entity = mapper.toJpaEntity(
-                concertRef,
-                userRef,
-                seatInventory,
+                concertJpaEntityRef,
+                userJpaEntityRef,
+                seatInventoryJpaEntity,
                 price
         );
 
-        seatInventory.held();
         ReservationJpaEntity savedEntity = reservationJpaRepository.save(entity);
 
         return mapper.toDomain(savedEntity, price);

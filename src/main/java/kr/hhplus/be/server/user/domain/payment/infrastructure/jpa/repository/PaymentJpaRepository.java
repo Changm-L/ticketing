@@ -13,12 +13,12 @@ public interface PaymentJpaRepository extends JpaRepository<PaymentJpaEntity, Lo
                 SELECT new kr.hhplus.be.server.user.domain.payment.core.dto.FindAllPaymentResponse(
                     p.id,
                     p.price,
-                    r.concert.title,
-                    r.concert.startsAt
+                    r.concertJpaEntity.title,
+                    r.concertJpaEntity.startsAt
                 )
                 FROM PaymentJpaEntity p
                 INNER JOIN FETCH ReservationJpaEntity r on p.reservationJpaEntity.id = r.id
-                WHERE p.user.id =:userId
+                WHERE p.userJpaEntity.id =:userId
                 ORDER BY p.id DESC
             """)
     List<FindAllPaymentResponse> findAllByUserId(long userId);

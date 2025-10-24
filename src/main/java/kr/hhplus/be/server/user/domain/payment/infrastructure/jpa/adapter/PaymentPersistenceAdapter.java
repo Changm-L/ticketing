@@ -5,7 +5,7 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import kr.hhplus.be.server.user.domain.concert.entity.SeatInventory;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.entity.SeatInventoryJpaEntity;
 import kr.hhplus.be.server.user.domain.payment.core.dto.FindAllPaymentResponse;
 import kr.hhplus.be.server.user.domain.payment.core.model.Payment;
 import kr.hhplus.be.server.user.domain.payment.core.port.out.PaymentPort;
@@ -13,17 +13,17 @@ import kr.hhplus.be.server.user.domain.payment.infrastructure.jpa.entity.Payment
 import kr.hhplus.be.server.user.domain.payment.infrastructure.jpa.repository.PaymentJpaRepository;
 import kr.hhplus.be.server.user.domain.reservation.core.model.Reservation;
 import kr.hhplus.be.server.user.domain.reservation.infrastructure.jpa.entity.ReservationJpaEntity;
-import kr.hhplus.be.server.user.domain.user.entity.User;
-import kr.hhplus.be.server.user.domain.wallet.infrastructure.jpa.entity.WalletJpaEntity;
-import kr.hhplus.be.server.user.domain.wallet.infrastructure.jpa.repository.WalletJpaRepository;
+import kr.hhplus.be.server.user.domain.user.infrastructure.jpa.entity.UserJpaEntity;
+import kr.hhplus.be.server.user.domain.wallet.core.model.Wallet;
+import kr.hhplus.be.server.user.domain.wallet.infrastructure.jpa.adapter.WalletPersistenceAdapter;
 
 @Component
 @RequiredArgsConstructor
 public class PaymentPersistenceAdapter implements PaymentPort {
 
-    private final EntityManager        entityManager;
-    private final PaymentJpaRepository paymentJpaRepository;
-    private final WalletJpaRepository  walletJpaRepository;
+    private final EntityManager            entityManager;
+    private final PaymentJpaRepository     paymentJpaRepository;
+    private final WalletPersistenceAdapter walletPersistenceAdapter;
 
     @Override
     public List<FindAllPaymentResponse> findAllByUserId(long userId) {
@@ -33,34 +33,32 @@ public class PaymentPersistenceAdapter implements PaymentPort {
     @Override
     public Payment pay(
             Reservation reservation,
-            WalletJpaEntity walletJpaEntity
+            Wallet wallet
     ) {
-        User userRef = entityManager.getReference(User.class, reservation.getUserId());
+        UserJpaEntity userJpaEntityRef = entityManager.getReference(UserJpaEntity.class, reservation.getUserId());
         ReservationJpaEntity reservationJpaEntityRef = entityManager.getReference(
                 ReservationJpaEntity.class,
                 reservation.getId()
         );
-        SeatInventory seatInventoryRef = entityManager.getReference(
-                SeatInventory.class,
+        SeatInventoryJpaEntity seatInventoryJpaEntityRef = entityManager.getReference(
+                SeatInventoryJpaEntity.class,
                 reservation.getSeatInventoryId()
         );
 
         PaymentJpaEntity paymentJpaEntity = PaymentJpaEntity.createWith(
-                userRef,
+                userJpaEntityRef,
                 reservationJpaEntityRef,
                 reservation.getPrice()
         );
-        seatInventoryRef.reserve();
         paymentJpaRepository.save(paymentJpaEntity);
 
-        walletJpaEntity.use(paymentJpaEntity.getPrice());
-        walletJpaRepository.save(walletJpaEntity);
+        walletPersistenceAdapter.save(wallet);
 
         return Payment.createWith(
                 paymentJpaEntity.getId(),
-                userRef,
+                userJpaEntityRef,
                 reservation,
-                seatInventoryRef.getPrice(),
+                seatInventoryJpaEntityRef.getPrice(),
                 paymentJpaEntity.getCreatedAt(),
                 paymentJpaEntity.getUpdatedAt()
         );

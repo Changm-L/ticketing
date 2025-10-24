@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 
 import kr.hhplus.be.server._core.entity.BaseTimeEntity;
 import kr.hhplus.be.server.user.domain.reservation.infrastructure.jpa.entity.ReservationJpaEntity;
-import kr.hhplus.be.server.user.domain.user.entity.User;
+import kr.hhplus.be.server.user.domain.user.infrastructure.jpa.entity.UserJpaEntity;
 
 @Entity
 @Table(name = "payment")
@@ -13,7 +13,7 @@ public class PaymentJpaEntity extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private UserJpaEntity userJpaEntity;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reservation_id", nullable = false)
@@ -26,25 +26,25 @@ public class PaymentJpaEntity extends BaseTimeEntity {
     }
 
     private PaymentJpaEntity(
-            User user,
+            UserJpaEntity userJpaEntity,
             ReservationJpaEntity reservationJpaEntity,
             BigDecimal price
     ) {
-        this.user = user;
+        this.userJpaEntity = userJpaEntity;
         this.reservationJpaEntity = reservationJpaEntity;
         this.price = price;
     }
 
     public static PaymentJpaEntity createWith(
-            User user,
+            UserJpaEntity userJpaEntity,
             ReservationJpaEntity reservationJpaEntity,
             BigDecimal price
     ) {
-        return new PaymentJpaEntity(user, reservationJpaEntity, price);
+        return new PaymentJpaEntity(userJpaEntity, reservationJpaEntity, price);
     }
 
-    public User getUser() {
-        return user;
+    public UserJpaEntity getUser() {
+        return userJpaEntity;
     }
 
     public ReservationJpaEntity getReservationJpaEntity() {

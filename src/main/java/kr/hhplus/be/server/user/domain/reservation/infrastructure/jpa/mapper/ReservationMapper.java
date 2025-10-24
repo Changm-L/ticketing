@@ -3,11 +3,11 @@ package kr.hhplus.be.server.user.domain.reservation.infrastructure.jpa.mapper;
 import java.math.BigDecimal;
 import org.springframework.stereotype.Component;
 
-import kr.hhplus.be.server.user.domain.concert.entity.Concert;
-import kr.hhplus.be.server.user.domain.concert.entity.SeatInventory;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.entity.ConcertJpaEntity;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.entity.SeatInventoryJpaEntity;
 import kr.hhplus.be.server.user.domain.reservation.core.model.Reservation;
 import kr.hhplus.be.server.user.domain.reservation.infrastructure.jpa.entity.ReservationJpaEntity;
-import kr.hhplus.be.server.user.domain.user.entity.User;
+import kr.hhplus.be.server.user.domain.user.infrastructure.jpa.entity.UserJpaEntity;
 
 @Component
 public class ReservationMapper {
@@ -18,9 +18,9 @@ public class ReservationMapper {
     ) {
         return Reservation.createWith(
                 entity.getId(),
-                entity.getUser(),
-                entity.getConcert(),
-                entity.getSeatInventory(),
+                entity.getUserJpaEntity(),
+                entity.getConcertJpaEntity(),
+                entity.getSeatInventoryJpaEntity(),
                 entity.getCreatedAt(),
                 entity.getUpdatedAt(),
                 price
@@ -28,15 +28,15 @@ public class ReservationMapper {
     }
 
     public ReservationJpaEntity toJpaEntity(
-            Concert concert,
-            User user,
-            SeatInventory seatInventory,
+            ConcertJpaEntity concertJpaEntity,
+            UserJpaEntity userJpaEntity,
+            SeatInventoryJpaEntity seatInventoryJpaEntity,
             BigDecimal price
     ) {
         return ReservationJpaEntity.createWith(
-                concert,
-                seatInventory,
-                user,
+                concertJpaEntity,
+                seatInventoryJpaEntity,
+                userJpaEntity,
                 price
         );
     }

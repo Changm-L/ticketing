@@ -3,9 +3,9 @@ package kr.hhplus.be.server.user.domain.reservation.core.model;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import kr.hhplus.be.server.user.domain.concert.entity.Concert;
-import kr.hhplus.be.server.user.domain.concert.entity.SeatInventory;
-import kr.hhplus.be.server.user.domain.user.entity.User;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.entity.ConcertJpaEntity;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.entity.SeatInventoryJpaEntity;
+import kr.hhplus.be.server.user.domain.user.infrastructure.jpa.entity.UserJpaEntity;
 
 public class Reservation {
     private long          id;
@@ -64,18 +64,18 @@ public class Reservation {
 
     public static Reservation createWith(
             long id,
-            User user,
-            Concert concert,
-            SeatInventory seatInventory,
+            UserJpaEntity userJpaEntity,
+            ConcertJpaEntity concertJpaEntity,
+            SeatInventoryJpaEntity seatInventoryJpaEntity,
             LocalDateTime createdAt,
             LocalDateTime updatedAt,
             BigDecimal price
     ) {
         return new Reservation(
                 id,
-                user.getId(),
-                concert.getId(),
-                seatInventory.getId(),
+                userJpaEntity.getId(),
+                concertJpaEntity.getId(),
+                seatInventoryJpaEntity.getId(),
                 price,
                 createdAt,
                 updatedAt

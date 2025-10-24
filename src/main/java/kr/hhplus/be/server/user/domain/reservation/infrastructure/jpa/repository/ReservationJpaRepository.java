@@ -15,14 +15,14 @@ public interface ReservationJpaRepository extends JpaRepository<ReservationJpaEn
     @Query("""
                 SELECT new kr.hhplus.be.server.user.domain.reservation.core.dto.FindAllReservationResponse(
                     r.id,
-                    r.concert.id,
-                    r.concert.title,
-                    r.seatInventory.seatStatus,
-                    r.concert.startsAt
+                    r.concertJpaEntity.id,
+                    r.concertJpaEntity.title,
+                    r.seatInventoryJpaEntity.seatStatus,
+                    r.concertJpaEntity.startsAt
                 )
                 FROM ReservationJpaEntity r
-                INNER JOIN Concert c on r.concert.id = c.id
-                WHERE r.user.id=:userId
+                INNER JOIN Concert c on r.concertJpaEntity.id = c.id
+                WHERE r.userJpaEntity.id=:userId
                 ORDER BY r.id DESC
             """)
     List<FindAllReservationResponse> findAllByUserId(long userId);
