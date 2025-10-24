@@ -16,7 +16,7 @@ import kr.hhplus.be.server.admin.domain.concert.dto.response.AdminConcertDetailR
 import kr.hhplus.be.server.admin.domain.concert.dto.response.AdminConcertListResponse;
 import kr.hhplus.be.server.admin.domain.concert.service.AdminConcertService;
 import kr.hhplus.be.server.core.utils.ControllerTest;
-import kr.hhplus.be.server.user.domain.concert.constant.ConcertStatus;
+import kr.hhplus.be.server.user.domain.concert.core.constant.ConcertStatus;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ControllerTest(controllers = AdminConcertController.class)
-class AdminConcertControllerTest {
+class AdminConcertJpaEntityControllerTest {
     @Autowired
     private MockMvc mockMvc;
 

@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.user.domain.concert.exception;
+package kr.hhplus.be.server.user.domain.concert.core.exception;
 
 import kr.hhplus.be.server._core.exception.ApiException;
 

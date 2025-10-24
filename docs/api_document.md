@@ -46,7 +46,7 @@
 
 ### 토큰 발급 API
 
-- `POST /v1/user/generate-token`
+- `POST /v1/userJpaEntity/generate-token`
 - response
 
 ```json 
@@ -141,7 +141,7 @@
 
 ### 잔액 조회
 
-- `GET /v1/wallet`
+- `GET /v1/walletJpaEntity`
 - require
     - Authorization Header
 - response
@@ -158,7 +158,7 @@
 
 ### 충전
 
-- `POST /v1/wallet/charge`
+- `POST /v1/walletJpaEntity/charge`
 - require
     - Authorization Header
 - response
@@ -194,7 +194,7 @@
 
 ### 등록
 
-- `POST /v1/admin/concert`
+- `POST /v1/admin/concertJpaEntity`
 - require
     - Authorization Header
 
@@ -232,12 +232,12 @@
 
 ### 상세 조회
 
-- `POST /v1/admin/concert/{concert_id}`
+- `POST /v1/admin/concertJpaEntity/{concert_id}`
 - require
     - Authorization Header
 
 ## 지갑 히스토리 조회
 
-- `GET /v1/admin/wallet/{user_id}`
+- `GET /v1/admin/walletJpaEntity/{user_id}`
 - require
     - Authorization Header

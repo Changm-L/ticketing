@@ -1,6 +1,6 @@
 ```mermaid
 flowchart LR
-    user[사용자 브라우저] -->|HTTPS| alb[Application Load Balancer]
+    userJpaEntity[사용자 브라우저] -->|HTTPS| alb[Application Load Balancer]
     alb -->|HTTP| nginx[NGINX Reverse Proxy]
 
 subgraph aws[AWS EC2]

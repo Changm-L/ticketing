@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.user.domain.concert.service;
+package kr.hhplus.be.server.user.domain.concert.application;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -6,14 +6,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
-import kr.hhplus.be.server.user.domain.concert.dto.response.ConcertDetailResponse;
-import kr.hhplus.be.server.user.domain.concert.dto.response.ConcertListResponse;
-import kr.hhplus.be.server.user.domain.concert.exception.ConcertNotFoundException;
-import kr.hhplus.be.server.user.domain.concert.repository.ConcertRepository;
+import kr.hhplus.be.server.user.domain.concert.core.dto.ConcertDetailResponse;
+import kr.hhplus.be.server.user.domain.concert.core.dto.ConcertListResponse;
+import kr.hhplus.be.server.user.domain.concert.core.exception.ConcertNotFoundException;
+import kr.hhplus.be.server.user.domain.concert.core.port.in.ConcertUseCase;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.repository.ConcertRepository;
 
 @Service
 @RequiredArgsConstructor
-public class ConcertService {
+public class ConcertService implements ConcertUseCase {
 
     private final ConcertRepository repository;
 

@@ -7,10 +7,11 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import kr.hhplus.be.server.user.domain.concert.dto.response.ConcertDetailResponse;
-import kr.hhplus.be.server.user.domain.concert.dto.response.ConcertListResponse;
-import kr.hhplus.be.server.user.domain.concert.exception.ConcertNotFoundException;
-import kr.hhplus.be.server.user.domain.concert.repository.ConcertRepository;
+import kr.hhplus.be.server.user.domain.concert.application.ConcertService;
+import kr.hhplus.be.server.user.domain.concert.core.dto.ConcertDetailResponse;
+import kr.hhplus.be.server.user.domain.concert.core.dto.ConcertListResponse;
+import kr.hhplus.be.server.user.domain.concert.core.exception.ConcertNotFoundException;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.repository.ConcertRepository;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -21,7 +22,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class ConcertServiceTest {
+class ConcertJpaEntityServiceTest {
 
     @Mock
     private ConcertRepository concertRepository;
@@ -52,7 +53,7 @@ class ConcertServiceTest {
     }
 
     @Nested
-    class getConcertById {
+    class getConcertJpaEntityById {
 
         @Test
         void 유효한_콘서트_아이디로_조회시_ConcertDetailResponse를_반환한다() {

@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.user.domain.concert.entity;
+package kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.entity;
 
 import java.math.BigDecimal;
 import jakarta.persistence.*;
@@ -19,11 +19,11 @@ import kr.hhplus.be.server._core.entity.IdentifiableEntity;
         )
 )
 
-public class SeatMaster extends IdentifiableEntity {
+public class SeatMasterJpaEntity extends IdentifiableEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "concert_id", nullable = false)
-    private Concert concert;
+    private ConcertJpaEntity concertJpaEntity;
 
     @Column(nullable = false)
     private int rowNo;
@@ -32,36 +32,36 @@ public class SeatMaster extends IdentifiableEntity {
     private int seatNo;
 
     @OneToOne(
-            mappedBy = "seatMaster",
+            mappedBy = "seatMasterJpaEntity",
             cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
             orphanRemoval = true
     )
-    private SeatInventory seatInventory;
+    private SeatInventoryJpaEntity seatInventoryJpaEntity;
 
-    private SeatMaster(
-            Concert concert,
+    private SeatMasterJpaEntity(
+            ConcertJpaEntity concertJpaEntity,
             int rowNo,
             int seatNo
     ) {
-        this.concert = concert;
+        this.concertJpaEntity = concertJpaEntity;
         this.rowNo = rowNo;
         this.seatNo = seatNo;
     }
 
-    public static SeatMaster of(
-            Concert concert,
+    public static SeatMasterJpaEntity of(
+            ConcertJpaEntity concertJpaEntity,
             BigDecimal price,
             int rowNo,
             int seatNo
     ) {
-        SeatMaster seatMaster = new SeatMaster(
-                concert,
+        SeatMasterJpaEntity seatMasterJpaEntity = new SeatMasterJpaEntity(
+                concertJpaEntity,
                 rowNo,
                 seatNo
         );
-        seatMaster.seatInventory = SeatInventory.of(seatMaster, price);
+        seatMasterJpaEntity.seatInventoryJpaEntity = SeatInventoryJpaEntity.of(seatMasterJpaEntity, price);
 
-        return seatMaster;
+        return seatMasterJpaEntity;
     }
 
 }

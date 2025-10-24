@@ -13,12 +13,12 @@ import kr.hhplus.be.server.admin.domain.concert.dto.request.UpdateConcertRequest
 import kr.hhplus.be.server.admin.domain.concert.dto.response.AdminConcertDetailResponse;
 import kr.hhplus.be.server.admin.domain.concert.dto.response.AdminConcertListResponse;
 import kr.hhplus.be.server.fixture.concert.ConcertFixture;
-import kr.hhplus.be.server.user.domain.concert.SeatGenerator;
-import kr.hhplus.be.server.user.domain.concert.constant.ConcertStatus;
-import kr.hhplus.be.server.user.domain.concert.entity.Concert;
-import kr.hhplus.be.server.user.domain.concert.entity.SeatMaster;
-import kr.hhplus.be.server.user.domain.concert.exception.ConcertNotFoundException;
-import kr.hhplus.be.server.user.domain.concert.repository.ConcertRepository;
+import kr.hhplus.be.server.user.domain.concert.application.SeatGenerator;
+import kr.hhplus.be.server.user.domain.concert.core.constant.ConcertStatus;
+import kr.hhplus.be.server.user.domain.concert.core.exception.ConcertNotFoundException;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.entity.ConcertJpaEntity;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.entity.SeatMasterJpaEntity;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.repository.ConcertRepository;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class AdminConcertServiceTest {
+class AdminConcertJpaEntityServiceTest {
 
     @Mock
     private ConcertRepository concertRepository;
@@ -62,7 +62,7 @@ class AdminConcertServiceTest {
     }
 
     @Nested
-    class findConcertById {
+    class findConcertJpaEntityById {
 
         @Test
         void 존재하는_아이디로_조회_시_AdminConcertDetailResponse를_반환한다() {
@@ -108,12 +108,13 @@ class AdminConcertServiceTest {
         //given
         long id = 1L;
         CreateConcertRequest request = ConcertFixture.createConcertRequest();
-        List<SeatMaster> seatMasterList = ConcertFixture.seatMasterList();
+        List<SeatMasterJpaEntity> seatMasterJpaEntityList = ConcertFixture.seatMasterList();
 
-        when(seatGenerator.generateSeatMasterAndInventory(any(Concert.class), eq(50))).thenReturn(seatMasterList);
-        when(concertRepository.save(any(Concert.class)))
+        when(seatGenerator.generateSeatMasterAndInventory(any(ConcertJpaEntity.class), eq(50))).thenReturn(
+                seatMasterJpaEntityList);
+        when(concertRepository.save(any(ConcertJpaEntity.class)))
                 .thenAnswer(invocation -> {
-                    Concert c = invocation.getArgument(0);
+                    ConcertJpaEntity c = invocation.getArgument(0);
                     ReflectionTestUtils.setField(c, "id", id);
                     return c;
                 });
@@ -123,7 +124,7 @@ class AdminConcertServiceTest {
 
         //then
         assertEquals(id, result);
-        verify(concertRepository).save(any(Concert.class));
+        verify(concertRepository).save(any(ConcertJpaEntity.class));
     }
 
     @Test
@@ -137,14 +138,14 @@ class AdminConcertServiceTest {
                 LocalDate.now(),
                 LocalDate.now().plusDays(2)
         );
-        Concert concert = spy(ConcertFixture.concert());
-        when(concertRepository.getById(id)).thenReturn(concert);
-        when(concertRepository.save(any(Concert.class)))
+        ConcertJpaEntity concertJpaEntity = spy(ConcertFixture.concert());
+        when(concertRepository.getById(id)).thenReturn(concertJpaEntity);
+        when(concertRepository.save(any(ConcertJpaEntity.class)))
                 .thenAnswer(invocationOnMock -> {
-                    Concert responsedConcert = invocationOnMock.getArgument(0);
-                    ReflectionTestUtils.setField(responsedConcert, "id", id);
+                    ConcertJpaEntity responsedConcertJpaEntity = invocationOnMock.getArgument(0);
+                    ReflectionTestUtils.setField(responsedConcertJpaEntity, "id", id);
 
-                    return responsedConcert;
+                    return responsedConcertJpaEntity;
                 });
 
         //when
@@ -152,7 +153,7 @@ class AdminConcertServiceTest {
 
         //then
         assertEquals(id, result);
-        verify(concertRepository).save(any(Concert.class));
-        verify(concert).update(request);
+        verify(concertRepository).save(any(ConcertJpaEntity.class));
+        verify(concertJpaEntity).update(request);
     }
 }

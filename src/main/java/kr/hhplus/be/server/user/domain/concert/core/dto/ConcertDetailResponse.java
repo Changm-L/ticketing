@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.user.domain.concert.dto.response;
+package kr.hhplus.be.server.user.domain.concert.core.dto;
 
 import java.time.LocalDate;
 

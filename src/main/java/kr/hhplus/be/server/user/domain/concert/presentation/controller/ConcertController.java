@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.user.domain.concert.controller;
+package kr.hhplus.be.server.user.domain.concert.presentation.controller;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 import kr.hhplus.be.server._core.dto.ApiResponse;
 import kr.hhplus.be.server._core.dto.ListResult;
 import kr.hhplus.be.server._core.dto.SingleResult;
-import kr.hhplus.be.server.user.domain.concert.dto.response.ConcertDetailResponse;
-import kr.hhplus.be.server.user.domain.concert.dto.response.ConcertListResponse;
-import kr.hhplus.be.server.user.domain.concert.service.ConcertService;
+import kr.hhplus.be.server.user.domain.concert.application.ConcertService;
+import kr.hhplus.be.server.user.domain.concert.core.dto.ConcertDetailResponse;
+import kr.hhplus.be.server.user.domain.concert.core.dto.ConcertListResponse;
 
 @RestController
 @RequiredArgsConstructor

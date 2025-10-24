@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.user.domain.concert.entity;
+package kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.entity;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -11,12 +11,13 @@ import lombok.NoArgsConstructor;
 import kr.hhplus.be.server._core.entity.BaseTimeEntity;
 import kr.hhplus.be.server.admin.domain.concert.dto.request.CreateConcertRequest;
 import kr.hhplus.be.server.admin.domain.concert.dto.request.UpdateConcertRequest;
-import kr.hhplus.be.server.user.domain.concert.constant.ConcertStatus;
+import kr.hhplus.be.server.user.domain.concert.core.constant.ConcertStatus;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Concert extends BaseTimeEntity {
+@Table(name = "concert")
+public class ConcertJpaEntity extends BaseTimeEntity {
 
     @Column(nullable = false)
     private String title;
@@ -40,9 +41,9 @@ public class Concert extends BaseTimeEntity {
             cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
             orphanRemoval = true
     )
-    private final List<SeatMaster> seatMasterList = new ArrayList<>();
+    private final List<SeatMasterJpaEntity> seatMasterJpaEntityList = new ArrayList<>();
 
-    private Concert(
+    private ConcertJpaEntity(
             String title,
             ConcertStatus status,
             String address,
@@ -56,7 +57,7 @@ public class Concert extends BaseTimeEntity {
         this.endsAt = endsAt;
     }
 
-    public Concert(CreateConcertRequest request) {
+    public ConcertJpaEntity(CreateConcertRequest request) {
         this(
                 request.title(),
                 ConcertStatus.ACTIVE,
@@ -84,8 +85,8 @@ public class Concert extends BaseTimeEntity {
         }
     }
 
-    public void resetSeatsWith(List<SeatMaster> seatMasterList) {
-        this.seatMasterList.clear();
-        this.seatMasterList.addAll(seatMasterList);
+    public void resetSeatsWith(List<SeatMasterJpaEntity> seatMasterJpaEntityList) {
+        this.seatMasterJpaEntityList.clear();
+        this.seatMasterJpaEntityList.addAll(seatMasterJpaEntityList);
     }
 }

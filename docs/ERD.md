@@ -3,7 +3,7 @@
 title: Ticketing ERD
 ---
 erDiagram
-    user {
+    userJpaEntity {
         bigint user_id PK
         string user_uuid
         datetime created_at
@@ -22,7 +22,7 @@ erDiagram
         datetime last_seen_at
     }
 
-    concert {
+    concertJpaEntity {
         bigint concert_id PK
         string title
         string status
@@ -66,7 +66,7 @@ erDiagram
         datetime created_at
     }
 
-    wallet {
+    walletJpaEntity {
         string user_uuid PK
         decimal balance
         int version
@@ -93,7 +93,7 @@ erDiagram
         datetime created_at
         datetime completed_at
         string idempotency_key
-    }
+    }   
 
     ticket {
         bigint id PK
@@ -105,19 +105,19 @@ erDiagram
     }
 
 %% 관계
-    user ||--o{ QUEUE_TOKEN: ""
-    concert ||--|{ seat_master: ""
+    userJpaEntity ||--o{ QUEUE_TOKEN: ""
+    concertJpaEntity ||--|{ seat_master: ""
     seat_master ||--|{ seat_inventory: ""
     seat_inventory ||--o{ reservation: ""
     QUEUE_TOKEN ||--o{ reservation: ""
-    concert ||--o{ reservation: ""
+    concertJpaEntity ||--o{ reservation: ""
     reservation ||--o{ payment: ""
     seat_inventory ||--|| ticket: ""
-    concert ||--o{ ticket: ""
-    user ||--|| wallet: ""
-    user ||--o{ wallet_ledger: ""
-    user ||--o{ reservation: ""
-    user ||--o{ payment: ""
-    user ||--o{ ticket: ""
+    concertJpaEntity ||--o{ ticket: ""
+    userJpaEntity ||--|| walletJpaEntity: ""
+    userJpaEntity ||--o{ wallet_ledger: ""
+    userJpaEntity ||--o{ reservation: ""
+    userJpaEntity ||--o{ payment: ""
+    userJpaEntity ||--o{ ticket: ""
 
 ```

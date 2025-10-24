@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.user.domain.concert.entity;
+package kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.entity;
 
 import java.math.BigDecimal;
 import jakarta.persistence.*;
@@ -7,18 +7,18 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import kr.hhplus.be.server._core.entity.BaseTimeEntity;
-import kr.hhplus.be.server.user.domain.concert.constant.SeatStatus;
-import kr.hhplus.be.server.user.domain.concert.exception.CannotUpdateSeatStatusException;
+import kr.hhplus.be.server.user.domain.concert.core.constant.SeatStatus;
+import kr.hhplus.be.server.user.domain.concert.core.exception.CannotUpdateSeatStatusException;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "seat_inventory")
-public class SeatInventory extends BaseTimeEntity {
+public class SeatInventoryJpaEntity extends BaseTimeEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "seat_master_id", nullable = false)
-    SeatMaster seatMaster;
+    SeatMasterJpaEntity seatMasterJpaEntity;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -30,26 +30,26 @@ public class SeatInventory extends BaseTimeEntity {
     @Column(nullable = false, precision = 10, scale = 2)
     BigDecimal price;
 
-    public Concert getConcert() {
-        return this.seatMaster.getConcert();
+    public ConcertJpaEntity getConcert() {
+        return this.seatMasterJpaEntity.getConcertJpaEntity();
     }
 
-    private SeatInventory(
-            SeatMaster seatMaster,
+    private SeatInventoryJpaEntity(
+            SeatMasterJpaEntity seatMasterJpaEntity,
             BigDecimal price,
             SeatStatus status
     ) {
-        this.seatMaster = seatMaster;
+        this.seatMasterJpaEntity = seatMasterJpaEntity;
         this.seatStatus = status;
         this.price = price;
     }
 
-    public static SeatInventory of(
-            SeatMaster seatMaster,
+    public static SeatInventoryJpaEntity of(
+            SeatMasterJpaEntity seatMasterJpaEntity,
             BigDecimal price
     ) {
-        return new SeatInventory(
-                seatMaster,
+        return new SeatInventoryJpaEntity(
+                seatMasterJpaEntity,
                 price,
                 SeatStatus.AVAILABLE
         );

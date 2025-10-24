@@ -10,11 +10,11 @@ import kr.hhplus.be.server.admin.domain.concert.dto.request.CreateConcertRequest
 import kr.hhplus.be.server.admin.domain.concert.dto.request.UpdateConcertRequest;
 import kr.hhplus.be.server.admin.domain.concert.dto.response.AdminConcertDetailResponse;
 import kr.hhplus.be.server.admin.domain.concert.dto.response.AdminConcertListResponse;
-import kr.hhplus.be.server.user.domain.concert.SeatGenerator;
-import kr.hhplus.be.server.user.domain.concert.entity.Concert;
-import kr.hhplus.be.server.user.domain.concert.entity.SeatMaster;
-import kr.hhplus.be.server.user.domain.concert.exception.ConcertNotFoundException;
-import kr.hhplus.be.server.user.domain.concert.repository.ConcertRepository;
+import kr.hhplus.be.server.user.domain.concert.application.SeatGenerator;
+import kr.hhplus.be.server.user.domain.concert.core.exception.ConcertNotFoundException;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.entity.ConcertJpaEntity;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.entity.SeatMasterJpaEntity;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.repository.ConcertRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -40,20 +40,23 @@ public class AdminConcertService {
 
     @Transactional
     public long create(CreateConcertRequest request) {
-        Concert concert = new Concert(request);
-        List<SeatMaster> seatMasterList = seatGenerator.generateSeatMasterAndInventory(concert, 50);
-        concert.resetSeatsWith(seatMasterList);
-        concertRepository.save(concert);
+        ConcertJpaEntity concertJpaEntity = new ConcertJpaEntity(request);
+        List<SeatMasterJpaEntity> seatMasterJpaEntityList = seatGenerator.generateSeatMasterAndInventory(
+                concertJpaEntity,
+                50
+        );
+        concertJpaEntity.resetSeatsWith(seatMasterJpaEntityList);
+        concertRepository.save(concertJpaEntity);
 
-        return concert.getId();
+        return concertJpaEntity.getId();
     }
 
     @Transactional
     public long update(long id, UpdateConcertRequest request) {
-        Concert concert = concertRepository.getById(id);
-        concert.update(request);
-        concertRepository.save(concert);
+        ConcertJpaEntity concertJpaEntity = concertRepository.getById(id);
+        concertJpaEntity.update(request);
+        concertRepository.save(concertJpaEntity);
 
-        return concert.getId();
+        return concertJpaEntity.getId();
     }
 }

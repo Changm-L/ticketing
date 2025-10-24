@@ -8,9 +8,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import kr.hhplus.be.server.fixture.concert.ConcertFixture;
-import kr.hhplus.be.server.user.domain.concert.entity.Concert;
-import kr.hhplus.be.server.user.domain.concert.entity.SeatMaster;
-import kr.hhplus.be.server.user.domain.concert.repository.SeatInventoryReadRepository;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.entity.ConcertJpaEntity;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.entity.SeatMasterJpaEntity;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.repository.SeatInventoryReadRepository;
 import kr.hhplus.be.server.user.domain.seat.dto.response.FindAllSeatsResponse;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -33,20 +33,20 @@ class SeatServiceTest {
     void findAllAvailableSeats() {
         //given
         long concertId = 1L;
-        Concert concert = ConcertFixture.concert();
-        SeatMaster seatMaster = SeatMaster.of(
-                concert,
+        ConcertJpaEntity concertJpaEntity = ConcertFixture.concert();
+        SeatMasterJpaEntity seatMasterJpaEntity = SeatMasterJpaEntity.of(
+                concertJpaEntity,
                 BigDecimal.valueOf(10000L),
                 1,
                 1
         );
 
-        ReflectionTestUtils.setField(concert, "id", concertId);
+        ReflectionTestUtils.setField(concertJpaEntity, "id", concertId);
 
         List<FindAllSeatsResponse> expected = List.of(
                 FindAllSeatsResponse.of(
-                        concert,
-                        seatMaster
+                        concertJpaEntity,
+                        seatMasterJpaEntity
                 )
         );
         when(readRepository.findAllSeatInventoryListWith(concertId)).thenReturn(expected);

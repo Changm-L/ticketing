@@ -13,10 +13,11 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.hhplus.be.server.core.utils.ControllerTest;
 import kr.hhplus.be.server.fixture.concert.ConcertFixture;
-import kr.hhplus.be.server.user.domain.concert.dto.response.ConcertDetailResponse;
-import kr.hhplus.be.server.user.domain.concert.dto.response.ConcertListResponse;
-import kr.hhplus.be.server.user.domain.concert.entity.Concert;
-import kr.hhplus.be.server.user.domain.concert.service.ConcertService;
+import kr.hhplus.be.server.user.domain.concert.application.ConcertService;
+import kr.hhplus.be.server.user.domain.concert.core.dto.ConcertDetailResponse;
+import kr.hhplus.be.server.user.domain.concert.core.dto.ConcertListResponse;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.entity.ConcertJpaEntity;
+import kr.hhplus.be.server.user.domain.concert.presentation.controller.ConcertController;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -24,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ControllerTest(controllers = ConcertController.class)
-class ConcertControllerTest {
+class ConcertJpaEntityControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -66,14 +67,14 @@ class ConcertControllerTest {
     void getConcertById() throws Exception {
         //given
         long concertId = 1L;
-        Concert concert = ConcertFixture.concert();
-        ReflectionTestUtils.setField(concert, "id", concertId);
+        ConcertJpaEntity concertJpaEntity = ConcertFixture.concert();
+        ReflectionTestUtils.setField(concertJpaEntity, "id", concertId);
         ConcertDetailResponse concertDetailResponse = new ConcertDetailResponse(
                 concertId,
-                concert.getTitle(),
-                concert.getAddress(),
-                concert.getStartsAt(),
-                concert.getEndsAt(),
+                concertJpaEntity.getTitle(),
+                concertJpaEntity.getAddress(),
+                concertJpaEntity.getStartsAt(),
+                concertJpaEntity.getEndsAt(),
                 50
         );
         when(concertService.getConcertById(concertId)).thenReturn(concertDetailResponse);
