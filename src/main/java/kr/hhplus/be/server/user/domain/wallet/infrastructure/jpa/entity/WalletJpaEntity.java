@@ -11,7 +11,7 @@ import org.springframework.util.ObjectUtils;
 
 import kr.hhplus.be.server._core.entity.BaseTimeEntity;
 import kr.hhplus.be.server.user.domain.payment.core.exception.InsufficientBalanceException;
-import kr.hhplus.be.server.user.domain.user.entity.User;
+import kr.hhplus.be.server.user.domain.user.infrastructure.jpa.entity.UserJpaEntity;
 import kr.hhplus.be.server.user.domain.wallet.core.constant.TransactionType;
 import kr.hhplus.be.server.user.domain.wallet.core.exception.InvalidChargeAmountException;
 import kr.hhplus.be.server.user.domain.wallet.core.model.Wallet;
@@ -29,7 +29,7 @@ public class WalletJpaEntity extends BaseTimeEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private UserJpaEntity userJpaEntity;
 
     @Column(nullable = false, precision = 16, scale = 2)
     private BigDecimal balance;
@@ -46,23 +46,23 @@ public class WalletJpaEntity extends BaseTimeEntity {
     int version;
 
     private WalletJpaEntity(
-            User user,
+            UserJpaEntity userJpaEntity,
             BigDecimal balance
     ) {
-        this.user = user;
+        this.userJpaEntity = userJpaEntity;
         this.balance = balance;
     }
 
-    public static WalletJpaEntity of(User user) {
-        return new WalletJpaEntity(user, BigDecimal.ZERO);
+    public static WalletJpaEntity of(UserJpaEntity userJpaEntity) {
+        return new WalletJpaEntity(userJpaEntity, BigDecimal.ZERO);
     }
 
     public static WalletJpaEntity createWith(
-            User user,
+            UserJpaEntity userJpaEntity,
             Wallet wallet
     ) {
         return new WalletJpaEntity(
-                user,
+                userJpaEntity,
                 wallet.getBalance()
         );
     }

@@ -21,12 +21,12 @@ public interface WalletJpaRepository extends JpaRepository<WalletJpaEntity, Long
                         w.balance
                     )
                 FROM WalletJpaEntity w
-                WHERE  w.user.id = :userId
+                WHERE  w.userJpaEntity.id = :userId
             """)
     GetBalanceResponse getWalletBalanceBy(long userId);
 
     default WalletJpaEntity getWalletByUserId(long userId) {
-        return findWalletByUserId(userId).orElseThrow(WalletNotFoundException::new);
+        return findWalletByUserJpaEntityId(userId).orElseThrow(WalletNotFoundException::new);
     }
 
     @Query("""
@@ -39,14 +39,14 @@ public interface WalletJpaRepository extends JpaRepository<WalletJpaEntity, Long
                 )
                 FROM WalletLedgerJpaEntity wl
                 LEFT JOIN FETCH WalletJpaEntity w on wl.walletJpaEntity.id = w.id
-                LEFT JOIN FETCH User u on w.user.id = :userId
+                LEFT JOIN FETCH UserJpaEntity u on w.userJpaEntity.id = :userId
                 ORDER BY wl.createdAt DESC
             """)
     List<GetWalletHistoryResponse> getWalletHistoryByUserId(long userId);
 
-    Optional<WalletJpaEntity> findWalletByUserId(long userId);
+    Optional<WalletJpaEntity> findWalletByUserJpaEntityId(long userId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("select w from WalletJpaEntity w join fetch w.user where w.user.id = :userId")
+    @Query("select w from WalletJpaEntity w join fetch w.userJpaEntity where w.userJpaEntity.id = :userId")
     Optional<WalletJpaEntity> findWalletByUserIdForUpdate(long userId);
 }

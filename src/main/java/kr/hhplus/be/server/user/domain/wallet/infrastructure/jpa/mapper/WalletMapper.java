@@ -30,7 +30,7 @@ public class WalletMapper {
 
         return Wallet.createWith(
                 walletJpaEntity.getId(),
-                walletJpaEntity.getUser().getId(),
+                walletJpaEntity.getUserJpaEntity().getId(),
                 walletJpaEntity.getBalance(),
                 walletLedgers,
                 walletJpaEntity.getCreatedAt(),
