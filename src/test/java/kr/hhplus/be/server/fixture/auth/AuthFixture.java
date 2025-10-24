@@ -2,8 +2,8 @@ package kr.hhplus.be.server.fixture.auth;
 
 import org.springframework.test.util.ReflectionTestUtils;
 
-import kr.hhplus.be.server.user.domain.auth.dto.request.SignUpRequest;
-import kr.hhplus.be.server.user.domain.user.entity.User;
+import kr.hhplus.be.server.user.domain.auth.presentation.dto.SignUpRequest;
+import kr.hhplus.be.server.user.domain.user.infrastructure.jpa.entity.UserJpaEntity;
 
 public class AuthFixture {
 
@@ -15,11 +15,11 @@ public class AuthFixture {
         );
     }
 
-    public static User user() {
+    public static UserJpaEntity user() {
         SignUpRequest request = signUpRequest();
-        User user = User.of(request);
+        UserJpaEntity userJpaEntity = UserJpaEntity.of(request.email(), request.name(), request.password());
 
-        ReflectionTestUtils.setField(user, "id", 1L);
-        return user;
+        ReflectionTestUtils.setField(userJpaEntity, "id", 1L);
+        return userJpaEntity;
     }
 }

@@ -12,8 +12,8 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.hhplus.be.server.core.utils.ControllerTest;
 import kr.hhplus.be.server.fixture.concert.ConcertFixture;
-import kr.hhplus.be.server.user.domain.concert.entity.Concert;
-import kr.hhplus.be.server.user.domain.concert.entity.SeatMaster;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.entity.ConcertJpaEntity;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.entity.SeatMasterJpaEntity;
 import kr.hhplus.be.server.user.domain.seat.dto.response.FindAllSeatsResponse;
 import kr.hhplus.be.server.user.domain.seat.service.SeatService;
 
@@ -38,10 +38,10 @@ class SeatControllerTest {
     void findAllAvailableSeats() throws Exception {
         //given
         long concertId = 1L;
-        Concert concert = ConcertFixture.concert();
-        ReflectionTestUtils.setField(concert, "id", concertId);
-        SeatMaster seatMaster = ConcertFixture.seatMasterList().get(0);
-        FindAllSeatsResponse seats1 = FindAllSeatsResponse.of(concert, seatMaster);
+        ConcertJpaEntity concertJpaEntity = ConcertFixture.concert();
+        ReflectionTestUtils.setField(concertJpaEntity, "id", concertId);
+        SeatMasterJpaEntity seatMasterJpaEntity = ConcertFixture.seatMasterList().get(0);
+        FindAllSeatsResponse seats1 = FindAllSeatsResponse.of(concertJpaEntity, seatMasterJpaEntity);
         List<FindAllSeatsResponse> expected = List.of(seats1);
         when(seatService.findAllAvailableSeats(concertId)).thenReturn(expected);
 
