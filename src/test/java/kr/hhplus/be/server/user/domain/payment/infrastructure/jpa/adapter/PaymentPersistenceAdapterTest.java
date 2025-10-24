@@ -12,18 +12,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import kr.hhplus.be.server.fixture.auth.AuthFixture;
 import kr.hhplus.be.server.fixture.concert.ConcertFixture;
-import kr.hhplus.be.server.user.domain.concert.constant.SeatStatus;
-import kr.hhplus.be.server.user.domain.concert.entity.Concert;
-import kr.hhplus.be.server.user.domain.concert.entity.SeatInventory;
+import kr.hhplus.be.server.user.domain.concert.core.constant.SeatStatus;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.entity.ConcertJpaEntity;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.entity.SeatInventoryJpaEntity;
 import kr.hhplus.be.server.user.domain.payment.core.dto.FindAllPaymentResponse;
 import kr.hhplus.be.server.user.domain.payment.core.model.Payment;
 import kr.hhplus.be.server.user.domain.payment.infrastructure.jpa.entity.PaymentJpaEntity;
 import kr.hhplus.be.server.user.domain.payment.infrastructure.jpa.repository.PaymentJpaRepository;
 import kr.hhplus.be.server.user.domain.reservation.core.model.Reservation;
 import kr.hhplus.be.server.user.domain.reservation.infrastructure.jpa.entity.ReservationJpaEntity;
-import kr.hhplus.be.server.user.domain.user.entity.User;
-import kr.hhplus.be.server.user.domain.wallet.infrastructure.jpa.entity.WalletJpaEntity;
-import kr.hhplus.be.server.user.domain.wallet.infrastructure.jpa.repository.WalletJpaRepository;
+import kr.hhplus.be.server.user.domain.user.infrastructure.jpa.entity.UserJpaEntity;
+import kr.hhplus.be.server.user.domain.wallet.core.model.Wallet;
+import kr.hhplus.be.server.user.domain.wallet.infrastructure.jpa.adapter.WalletPersistenceAdapter;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -41,7 +41,7 @@ class PaymentPersistenceAdapterTest {
     private PaymentJpaRepository paymentJpaRepository;
 
     @Mock
-    private WalletJpaRepository walletJpaRepository;
+    private WalletPersistenceAdapter walletPersistenceAdapter;
 
     @InjectMocks
     private PaymentPersistenceAdapter paymentPersistenceAdapter;
@@ -72,38 +72,40 @@ class PaymentPersistenceAdapterTest {
     @Test
     void pay() {
         long reservationId = 1L;
-        User user = spy(AuthFixture.user());
-        WalletJpaEntity walletJpaEntity = mock(WalletJpaEntity.class);
+        UserJpaEntity userJpaEntity = spy(AuthFixture.user());
+        Wallet wallet = mock(Wallet.class);
         BigDecimal price = BigDecimal.valueOf(10000L);
-        Concert concert = ConcertFixture.concert();
-        SeatInventory seatInventory = ConcertFixture.seatMasterList().get(0).getSeatInventory();
+        ConcertJpaEntity concertJpaEntity = ConcertFixture.concert();
+        SeatInventoryJpaEntity seatInventoryJpaEntity = ConcertFixture
+                .seatMasterList()
+                .get(0)
+                .getSeatInventoryJpaEntity();
 
-        ReflectionTestUtils.setField(seatInventory, "id", 1L);
-        ReflectionTestUtils.setField(seatInventory, "seatStatus", SeatStatus.HELD);
-        walletJpaEntity.charge(price);
+        ReflectionTestUtils.setField(seatInventoryJpaEntity, "id", 1L);
+        ReflectionTestUtils.setField(seatInventoryJpaEntity, "seatStatus", SeatStatus.HELD);
+        wallet.charge(price);
 
         Reservation reservation = Reservation.createWith(
-                reservationId, user, concert, seatInventory,
+                reservationId, userJpaEntity, concertJpaEntity, seatInventoryJpaEntity,
                 LocalDateTime.now(), LocalDateTime.now(), price
         );
         ReservationJpaEntity reservationJpaEntity = ReservationJpaEntity.createWith(
-                concert,
-                seatInventory,
-                user,
+                concertJpaEntity,
+                seatInventoryJpaEntity,
+                userJpaEntity,
                 price
         );
-        PaymentJpaEntity paymentJpaEntity = PaymentJpaEntity.createWith(user, reservationJpaEntity, price);
+        PaymentJpaEntity paymentJpaEntity = PaymentJpaEntity.createWith(userJpaEntity, reservationJpaEntity, price);
 
-        when(entityManager.getReference(User.class, 1L)).thenReturn(user);
+        when(entityManager.getReference(UserJpaEntity.class, 1L)).thenReturn(userJpaEntity);
         when(entityManager.getReference(ReservationJpaEntity.class, reservationId)).thenReturn(reservationJpaEntity);
-        when(entityManager.getReference(SeatInventory.class, 1L)).thenReturn(seatInventory);
+        when(entityManager.getReference(SeatInventoryJpaEntity.class, 1L)).thenReturn(seatInventoryJpaEntity);
 
         //when
-        Payment result = paymentPersistenceAdapter.pay(reservation, walletJpaEntity);
+        Payment result = paymentPersistenceAdapter.pay(reservation, wallet);
 
         //then
         assertEquals(result.getPrice(), paymentJpaEntity.getPrice());
-        assertEquals(SeatStatus.RESERVED, seatInventory.getSeatStatus());
-        verify(walletJpaEntity).use(price);
+        assertEquals(SeatStatus.HELD, seatInventoryJpaEntity.getSeatStatus());
     }
 }

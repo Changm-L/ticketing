@@ -13,17 +13,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import kr.hhplus.be.server.fixture.auth.AuthFixture;
 import kr.hhplus.be.server.fixture.concert.ConcertFixture;
-import kr.hhplus.be.server.user.domain.concert.constant.SeatStatus;
-import kr.hhplus.be.server.user.domain.concert.entity.SeatInventory;
-import kr.hhplus.be.server.user.domain.concert.entity.SeatMaster;
-import kr.hhplus.be.server.user.domain.concert.repository.SeatInventoryReadRepository;
+import kr.hhplus.be.server.user.domain.concert.core.constant.SeatStatus;
+import kr.hhplus.be.server.user.domain.concert.core.exception.CannotUpdateSeatStatusException;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.entity.SeatInventoryJpaEntity;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.entity.SeatMasterJpaEntity;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.repository.SeatInventoryReadRepository;
 import kr.hhplus.be.server.user.domain.reservation.core.dto.FindAllReservationResponse;
 import kr.hhplus.be.server.user.domain.reservation.core.dto.PlaceReservationResponse;
-import kr.hhplus.be.server.user.domain.reservation.core.exception.AlreadyReservedException;
 import kr.hhplus.be.server.user.domain.reservation.core.model.Reservation;
 import kr.hhplus.be.server.user.domain.reservation.core.port.out.ReservationPort;
 import kr.hhplus.be.server.user.domain.seat.exception.SeatNotFoundException;
-import kr.hhplus.be.server.user.domain.user.entity.User;
+import kr.hhplus.be.server.user.domain.user.infrastructure.jpa.entity.UserJpaEntity;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -82,20 +82,20 @@ class ReservationServiceTest {
         @Test
         void 예약_가능한_좌석이_존재할_시_좌석상태를_변경하고_예약을_생성한다() {
             //given
-            User user = AuthFixture.user();
+            UserJpaEntity userJpaEntity = AuthFixture.user();
             long userId = 1L;
             long concertId = 1L;
             long seatInventoryId = 1L;
             BigDecimal price = BigDecimal.valueOf(10000L);
-            SeatMaster seatMaster = ConcertFixture.seatMasterList().get(0);
-            SeatInventory seatInventory = SeatInventory.of(seatMaster, price);
+            SeatMasterJpaEntity seatMasterJpaEntity = ConcertFixture.seatMasterList().get(0);
+            SeatInventoryJpaEntity seatInventoryJpaEntity = SeatInventoryJpaEntity.of(seatMasterJpaEntity, price);
             when(seatInventoryReadRepository.findByConcertIdAndSeatInventoryId(concertId, seatInventoryId)).thenReturn(
-                    Optional.of(seatInventory));
+                    Optional.of(seatInventoryJpaEntity));
             Reservation reservation = Reservation.createWith(
                     1L,
-                    user,
+                    userJpaEntity,
                     ConcertFixture.concert(),
-                    seatInventory,
+                    seatInventoryJpaEntity,
                     LocalDateTime.now(),
                     LocalDateTime.now(),
                     price
@@ -138,16 +138,15 @@ class ReservationServiceTest {
             long concertId = 1L;
             long seatInventoryId = 1L;
 
-            SeatInventory seatInventory = SeatInventory.of(null, BigDecimal.valueOf(10000L));
-            ReflectionTestUtils.setField(seatInventory, "seatStatus", SeatStatus.HELD);
-            seatInventory.reserve();
+            SeatInventoryJpaEntity seatInventoryJpaEntity = SeatInventoryJpaEntity.of(null, BigDecimal.valueOf(10000L));
+            ReflectionTestUtils.setField(seatInventoryJpaEntity, "seatStatus", SeatStatus.HELD);
             when(seatInventoryReadRepository.findByConcertIdAndSeatInventoryId(concertId, seatInventoryId)).thenReturn(
-                    Optional.of(seatInventory)
+                    Optional.of(seatInventoryJpaEntity)
             );
 
             //when & then
             assertThrows(
-                    AlreadyReservedException.class,
+                    CannotUpdateSeatStatusException.class,
                     () -> reservationService.placeReservation(userId, concertId, seatInventoryId)
             );
         }

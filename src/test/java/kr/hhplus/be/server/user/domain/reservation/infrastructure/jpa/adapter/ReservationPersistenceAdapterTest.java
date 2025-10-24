@@ -13,17 +13,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import kr.hhplus.be.server.fixture.auth.AuthFixture;
 import kr.hhplus.be.server.fixture.concert.ConcertFixture;
-import kr.hhplus.be.server.user.domain.concert.constant.SeatStatus;
-import kr.hhplus.be.server.user.domain.concert.entity.Concert;
-import kr.hhplus.be.server.user.domain.concert.entity.SeatInventory;
-import kr.hhplus.be.server.user.domain.concert.entity.SeatMaster;
-import kr.hhplus.be.server.user.domain.concert.repository.SeatInventoryReadRepository;
+import kr.hhplus.be.server.user.domain.concert.core.constant.SeatStatus;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.entity.ConcertJpaEntity;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.entity.SeatInventoryJpaEntity;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.entity.SeatMasterJpaEntity;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.repository.SeatInventoryReadRepository;
 import kr.hhplus.be.server.user.domain.reservation.core.dto.FindAllReservationResponse;
 import kr.hhplus.be.server.user.domain.reservation.core.model.Reservation;
 import kr.hhplus.be.server.user.domain.reservation.infrastructure.jpa.entity.ReservationJpaEntity;
 import kr.hhplus.be.server.user.domain.reservation.infrastructure.jpa.mapper.ReservationMapper;
 import kr.hhplus.be.server.user.domain.reservation.infrastructure.jpa.repository.ReservationJpaRepository;
-import kr.hhplus.be.server.user.domain.user.entity.User;
+import kr.hhplus.be.server.user.domain.user.infrastructure.jpa.entity.UserJpaEntity;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -75,28 +75,38 @@ class ReservationPersistenceAdapterTest {
         long userId = 1L;
         long concertId = 1L;
         long seatInventoryId = 1L;
-        User user = AuthFixture.user();
+        UserJpaEntity userJpaEntity = AuthFixture.user();
         BigDecimal price = BigDecimal.valueOf(10000L);
-        Concert concert = ConcertFixture.concert();
-        SeatMaster seatMaster = ConcertFixture.seatMasterList().get(0);
-        SeatInventory seatInventory = SeatInventory.of(seatMaster, price);
-        ReservationJpaEntity jpaEntity = ReservationJpaEntity.createWith(concert, seatInventory, user, price);
+        ConcertJpaEntity concertJpaEntity = ConcertFixture.concert();
+        SeatMasterJpaEntity seatMasterJpaEntity = ConcertFixture.seatMasterList().get(0);
+        SeatInventoryJpaEntity seatInventoryJpaEntity = SeatInventoryJpaEntity.of(seatMasterJpaEntity, price);
+        ReservationJpaEntity jpaEntity = ReservationJpaEntity.createWith(
+                concertJpaEntity,
+                seatInventoryJpaEntity,
+                userJpaEntity,
+                price
+        );
         ReflectionTestUtils.setField(jpaEntity, "id", reservationId);
         Reservation reservation = Reservation.createWith(
                 reservationId,
-                user,
-                concert,
-                seatInventory,
+                userJpaEntity,
+                concertJpaEntity,
+                seatInventoryJpaEntity,
                 LocalDateTime.now(),
                 LocalDateTime.now(),
                 price
         );
 
-        when(entityManager.getReference(Concert.class, concertId)).thenReturn(concert);
-        when(entityManager.getReference(User.class, userId)).thenReturn(user);
-        when(seatInventoryReadRepository.getById(seatInventoryId)).thenReturn(seatInventory);
+        when(entityManager.getReference(ConcertJpaEntity.class, concertId)).thenReturn(concertJpaEntity);
+        when(entityManager.getReference(UserJpaEntity.class, userId)).thenReturn(userJpaEntity);
+        when(seatInventoryReadRepository.getById(seatInventoryId)).thenReturn(seatInventoryJpaEntity);
         when(seatInventoryReadRepository.getPriceBy(concertId, seatInventoryId)).thenReturn(Optional.of(price));
-        when(reservationMapper.toJpaEntity(concert, user, seatInventory, price)).thenReturn(jpaEntity);
+        when(reservationMapper.toJpaEntity(
+                concertJpaEntity,
+                userJpaEntity,
+                seatInventoryJpaEntity,
+                price
+        )).thenReturn(jpaEntity);
         when(jpaRepository.save(any(ReservationJpaEntity.class))).thenReturn(jpaEntity);
 
         when(reservationMapper.toDomain(any(ReservationJpaEntity.class), any(BigDecimal.class)))
@@ -107,27 +117,31 @@ class ReservationPersistenceAdapterTest {
 
         //then
         verify(jpaRepository).save(jpaEntity);
-        assertEquals(SeatStatus.HELD, seatInventory.getSeatStatus());
-        assertEquals(jpaEntity.getSeatInventory().getId(), result.getSeatInventoryId());
+        assertEquals(jpaEntity.getSeatInventoryJpaEntity().getId(), result.getSeatInventoryId());
     }
 
     @Test
     void getById() {
         //given
         long reservationId = 1L;
-        User user = AuthFixture.user();
-        Concert concert = ConcertFixture.concert();
-        SeatMaster seatMaster = ConcertFixture.seatMasterList().get(0);
-        SeatInventory seatInventory = seatMaster.getSeatInventory();
+        UserJpaEntity userJpaEntity = AuthFixture.user();
+        ConcertJpaEntity concertJpaEntity = ConcertFixture.concert();
+        SeatMasterJpaEntity seatMasterJpaEntity = ConcertFixture.seatMasterList().get(0);
+        SeatInventoryJpaEntity seatInventoryJpaEntity = seatMasterJpaEntity.getSeatInventoryJpaEntity();
         BigDecimal price = BigDecimal.valueOf(10000L);
 
-        ReservationJpaEntity jpaEntity = ReservationJpaEntity.createWith(concert, seatInventory, user, price);
+        ReservationJpaEntity jpaEntity = ReservationJpaEntity.createWith(
+                concertJpaEntity,
+                seatInventoryJpaEntity,
+                userJpaEntity,
+                price
+        );
         ReflectionTestUtils.setField(jpaEntity, "id", reservationId);
         Reservation expected = Reservation.createWith(
                 jpaEntity.getId(),
-                user,
-                concert,
-                seatInventory,
+                userJpaEntity,
+                concertJpaEntity,
+                seatInventoryJpaEntity,
                 LocalDateTime.now(),
                 LocalDateTime.now(),
                 price
@@ -140,7 +154,7 @@ class ReservationPersistenceAdapterTest {
 
         //then
         verify(jpaRepository).getById(reservationId);
-        assertEquals(jpaEntity.getSeatInventory().getId(), result.getSeatInventoryId());
+        assertEquals(jpaEntity.getSeatInventoryJpaEntity().getId(), result.getSeatInventoryId());
         assertEquals(jpaEntity.getPrice(), result.getPrice());
         assertEquals(jpaEntity.getId(), result.getId());
         verify(reservationMapper).toDomain(jpaEntity, price);

@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.hhplus.be.server.core.utils.ControllerTest;
-import kr.hhplus.be.server.user.domain.concert.constant.SeatStatus;
+import kr.hhplus.be.server.user.domain.concert.core.constant.SeatStatus;
 import kr.hhplus.be.server.user.domain.reservation.core.dto.FindAllReservationResponse;
 import kr.hhplus.be.server.user.domain.reservation.core.dto.PlaceReservationResponse;
 import kr.hhplus.be.server.user.domain.reservation.core.port.in.ReservationUseCase;

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -11,8 +12,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import kr.hhplus.be.server.fixture.auth.AuthFixture;
 import kr.hhplus.be.server.fixture.concert.ConcertFixture;
-import kr.hhplus.be.server.user.domain.concert.entity.Concert;
-import kr.hhplus.be.server.user.domain.concert.entity.SeatInventory;
+import kr.hhplus.be.server.user.domain.concert.core.constant.SeatStatus;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.entity.ConcertJpaEntity;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.entity.SeatInventoryJpaEntity;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.repository.SeatInventoryReadRepository;
 import kr.hhplus.be.server.user.domain.payment.core.dto.FindAllPaymentResponse;
 import kr.hhplus.be.server.user.domain.payment.core.dto.PaymentResponse;
 import kr.hhplus.be.server.user.domain.payment.core.exception.InsufficientBalanceException;
@@ -20,9 +23,11 @@ import kr.hhplus.be.server.user.domain.payment.core.model.Payment;
 import kr.hhplus.be.server.user.domain.payment.core.port.out.PaymentPort;
 import kr.hhplus.be.server.user.domain.reservation.core.model.Reservation;
 import kr.hhplus.be.server.user.domain.reservation.core.port.out.ReservationPort;
-import kr.hhplus.be.server.user.domain.user.entity.User;
-import kr.hhplus.be.server.user.domain.user.repository.UserRepository;
-import kr.hhplus.be.server.user.domain.wallet.infrastructure.jpa.entity.WalletJpaEntity;
+import kr.hhplus.be.server.user.domain.user.infrastructure.jpa.entity.UserJpaEntity;
+import kr.hhplus.be.server.user.domain.wallet.core.constant.TransactionType;
+import kr.hhplus.be.server.user.domain.wallet.core.model.Wallet;
+import kr.hhplus.be.server.user.domain.wallet.core.model.WalletLedger;
+import kr.hhplus.be.server.user.domain.wallet.core.port.out.WalletPort;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -38,10 +43,13 @@ class PaymentServiceTest {
     private PaymentPort paymentPort;
 
     @Mock
-    private UserRepository userRepository;
+    private ReservationPort reservationPort;
 
     @Mock
-    private ReservationPort reservationPort;
+    private WalletPort walletPort;
+
+    @Mock
+    private SeatInventoryReadRepository seatInventoryReadRepository;
 
     @InjectMocks
     private PaymentService paymentService;
@@ -70,42 +78,62 @@ class PaymentServiceTest {
             //given
             long userId = 1L;
             long reservationId = 1L;
+            long seatInventoryId = 1L;
             BigDecimal price = BigDecimal.valueOf(10000L);
-            User user = spy(AuthFixture.user());
-            WalletJpaEntity walletJpaEntity = mock(WalletJpaEntity.class);
+            UserJpaEntity userJpaEntity = spy(AuthFixture.user());
+            WalletLedger walletLedger = WalletLedger.of(
+                    1L,
+                    TransactionType.CHARGE,
+                    BigDecimal.valueOf(10000L),
+                    price
+            );
+            List<WalletLedger> walletLedgers = List.of(walletLedger);
+            Wallet wallet = Wallet.createWith(
+                    1L,
+                    userId,
+                    BigDecimal.valueOf(10000L),
+                    walletLedgers,
+                    LocalDateTime.now(),
+                    LocalDateTime.now()
+            );
 
-            Concert concert = ConcertFixture.concert();
-            SeatInventory seatInventory = ConcertFixture.seatMasterList().get(0).getSeatInventory();
+            ConcertJpaEntity concertJpaEntity = ConcertFixture.concert();
+            SeatInventoryJpaEntity seatInventoryJpaEntity = ConcertFixture
+                    .seatMasterList()
+                    .get(0)
+                    .getSeatInventoryJpaEntity();
+            ReflectionTestUtils.setField(seatInventoryJpaEntity, "id", seatInventoryId);
+            ReflectionTestUtils.setField(seatInventoryJpaEntity, "seatStatus", SeatStatus.HELD);
             Reservation reservation = Reservation.createWith(
                     reservationId,
-                    user,
-                    concert,
-                    seatInventory,
+                    userJpaEntity,
+                    concertJpaEntity,
+                    seatInventoryJpaEntity,
                     LocalDateTime.now(),
                     LocalDateTime.now(),
                     price
             );
             Payment payment = Payment.createWith(
                     1L,
-                    user,
+                    userJpaEntity,
                     reservation,
                     price,
                     LocalDateTime.now(),
                     LocalDateTime.now()
             );
             when(reservationPort.getById(reservationId)).thenReturn(reservation);
-            when(userRepository.getById(userId)).thenReturn(user);
-            when(paymentPort.pay(reservation, walletJpaEntity)).thenReturn(payment);
-            when(user.getWalletJpaEntity()).thenReturn(walletJpaEntity);
-            when(walletJpaEntity.getBalance()).thenReturn(BigDecimal.valueOf(10000L));
+            when(walletPort.getWalletByUserId(userId)).thenReturn(wallet);
+            when(seatInventoryReadRepository.getById(seatInventoryId)).thenReturn(seatInventoryJpaEntity);
+            when(paymentPort.pay(reservation, wallet)).thenReturn(payment);
 
             //when
             PaymentResponse result = paymentService.payment(userId, reservationId);
 
             //then
             verify(reservationPort).getById(reservationId);
-            verify(userRepository).getById(userId);
-            verify(paymentPort).pay(reservation, walletJpaEntity);
+            verify(walletPort).getWalletByUserId(userId);
+            verify(seatInventoryReadRepository).getById(seatInventoryId);
+            verify(paymentPort).pay(reservation, wallet);
             assertEquals(payment.getPrice(), result.price());
         }
 
@@ -114,33 +142,51 @@ class PaymentServiceTest {
             //given
             long userId = 1L;
             long reservationId = 1L;
+            long seatInventoryId = 1L;
             BigDecimal price = BigDecimal.valueOf(10000L);
-            User user = spy(AuthFixture.user());
-            WalletJpaEntity walletJpaEntity = mock(WalletJpaEntity.class);
+            UserJpaEntity userJpaEntity = spy(AuthFixture.user());
+            WalletLedger walletLedger = WalletLedger.of(
+                    1L,
+                    TransactionType.CHARGE,
+                    BigDecimal.valueOf(10000L),
+                    price
+            );
+            List<WalletLedger> walletLedgers = List.of(walletLedger);
+            Wallet wallet = Wallet.createWith(
+                    1L,
+                    userId,
+                    BigDecimal.ZERO,
+                    walletLedgers,
+                    LocalDateTime.now(),
+                    LocalDateTime.now()
+            );
 
-            Concert concert = ConcertFixture.concert();
-            SeatInventory seatInventory = ConcertFixture.seatMasterList().get(0).getSeatInventory();
+            ConcertJpaEntity concertJpaEntity = ConcertFixture.concert();
+            SeatInventoryJpaEntity seatInventoryJpaEntity = ConcertFixture
+                    .seatMasterList()
+                    .get(0)
+                    .getSeatInventoryJpaEntity();
+            ReflectionTestUtils.setField(seatInventoryJpaEntity, "id", seatInventoryId);
+            ReflectionTestUtils.setField(seatInventoryJpaEntity, "seatStatus", SeatStatus.HELD);
             Reservation reservation = Reservation.createWith(
                     reservationId,
-                    user,
-                    concert,
-                    seatInventory,
+                    userJpaEntity,
+                    concertJpaEntity,
+                    seatInventoryJpaEntity,
                     LocalDateTime.now(),
                     LocalDateTime.now(),
                     price
             );
             Payment payment = Payment.createWith(
                     1L,
-                    user,
+                    userJpaEntity,
                     reservation,
                     price,
                     LocalDateTime.now(),
                     LocalDateTime.now()
             );
             when(reservationPort.getById(reservationId)).thenReturn(reservation);
-            when(userRepository.getById(userId)).thenReturn(user);
-            when(user.getWalletJpaEntity()).thenReturn(walletJpaEntity);
-            when(walletJpaEntity.getBalance()).thenReturn(BigDecimal.valueOf(5000L));
+            when(walletPort.getWalletByUserId(userId)).thenReturn(wallet);
 
             //when & then
             assertThrows(
