@@ -14,10 +14,10 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import kr.hhplus.be.server._core.infrastructure.jwt.JwtProvider;
-import kr.hhplus.be.server.user.domain.auth.constant.JwtTokenType;
-import kr.hhplus.be.server.user.domain.auth.exception.AlreadySignOutTokenException;
-import kr.hhplus.be.server.user.domain.auth.exception.UnAuthorizationException;
-import kr.hhplus.be.server.user.domain.auth.service.RedisTokenProvider;
+import kr.hhplus.be.server.user.domain.auth.application.RedisTokenProvider;
+import kr.hhplus.be.server.user.domain.auth.core.constant.JwtTokenType;
+import kr.hhplus.be.server.user.domain.auth.core.exception.AlreadySignOutTokenException;
+import kr.hhplus.be.server.user.domain.auth.core.exception.UnAuthorizationException;
 
 @Slf4j
 @Component

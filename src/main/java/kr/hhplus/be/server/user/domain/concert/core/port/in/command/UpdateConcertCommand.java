@@ -1,13 +1,13 @@
-package kr.hhplus.be.server.admin.domain.concert.dto.request;
+package kr.hhplus.be.server.user.domain.concert.core.port.in.command;
 
 import java.time.LocalDate;
 
 import kr.hhplus.be.server.user.domain.concert.core.constant.ConcertStatus;
 
-public record UpdateConcertRequest(
+public record UpdateConcertCommand(
         String title,
-        ConcertStatus status,
         String address,
+        ConcertStatus status,
         LocalDate startsAt,
         LocalDate endsAt
 ) {

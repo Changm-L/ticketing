@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import kr.hhplus.be.server._core.dto.ApiResponse;
 import kr.hhplus.be.server._core.dto.CommonResult;
 import kr.hhplus.be.server._core.exception.ApiException;
-import kr.hhplus.be.server.user.domain.auth.exception.AuthException;
-import kr.hhplus.be.server.user.domain.auth.exception.UnAuthorizationException;
-import kr.hhplus.be.server.user.domain.user.exception.UserException;
+import kr.hhplus.be.server.user.domain.auth.core.exception.AuthException;
+import kr.hhplus.be.server.user.domain.auth.core.exception.UnAuthorizationException;
+import kr.hhplus.be.server.user.domain.user.core.exception.UserException;
 
 @Slf4j
 @RestControllerAdvice

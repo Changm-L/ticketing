@@ -2,9 +2,9 @@ package kr.hhplus.be.server.user.domain.seat.dto.response;
 
 import java.time.LocalDate;
 
-import kr.hhplus.be.server.user.domain.concert.constant.SeatStatus;
-import kr.hhplus.be.server.user.domain.concert.entity.Concert;
-import kr.hhplus.be.server.user.domain.concert.entity.SeatMaster;
+import kr.hhplus.be.server.user.domain.concert.core.constant.SeatStatus;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.entity.ConcertJpaEntity;
+import kr.hhplus.be.server.user.domain.concert.infrastructure.jpa.entity.SeatMasterJpaEntity;
 
 public record FindAllSeatsResponse(
         long concertId,
@@ -15,15 +15,15 @@ public record FindAllSeatsResponse(
 ) {
 
     public static FindAllSeatsResponse of(
-            Concert concert,
-            SeatMaster seatMaster
+            ConcertJpaEntity concertJpaEntity,
+            SeatMasterJpaEntity seatMasterJpaEntity
     ) {
         return new FindAllSeatsResponse(
-                concert.getId(),
-                concert.getStartsAt(),
-                seatMaster.getId(),
-                seatMaster.getSeatNo(),
-                seatMaster.getSeatInventory().getSeatStatus()
+                concertJpaEntity.getId(),
+                concertJpaEntity.getStartsAt(),
+                seatMasterJpaEntity.getId(),
+                seatMasterJpaEntity.getSeatNo(),
+                seatMasterJpaEntity.getSeatInventoryJpaEntity().getSeatStatus()
         );
     }
 }

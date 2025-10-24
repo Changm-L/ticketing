@@ -11,10 +11,10 @@ import org.springframework.stereotype.Component;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import kr.hhplus.be.server._core.environment.SecurityProperties;
-import kr.hhplus.be.server.user.domain.auth.constant.JwtTokenType;
-import kr.hhplus.be.server.user.domain.auth.dto.response.TokenPair;
-import kr.hhplus.be.server.user.domain.user.constant.Role;
-import kr.hhplus.be.server.user.domain.user.entity.User;
+import kr.hhplus.be.server.user.domain.auth.core.constant.JwtTokenType;
+import kr.hhplus.be.server.user.domain.auth.core.dto.TokenPair;
+import kr.hhplus.be.server.user.domain.user.core.constant.Role;
+import kr.hhplus.be.server.user.domain.user.core.model.User;
 
 @Component
 public class JwtProvider {
