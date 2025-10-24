@@ -2,7 +2,6 @@ package kr.hhplus.be.server.user.domain.wallet.controller;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,8 +38,6 @@ class WalletControllerTest {
 
     @MockitoBean
     private WalletService walletService;
-
-    private final DateTimeFormatter MICRO_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS");
 
     @Test
     void getBalance() throws Exception {
@@ -96,7 +93,7 @@ class WalletControllerTest {
                 BigDecimal.valueOf(1000L),
                 BigDecimal.valueOf(10000L),
                 TransactionType.CHARGE,
-                LocalDateTime.now()
+                LocalDateTime.now().truncatedTo(ChronoUnit.MICROS)
         );
         List<GetWalletHistoryResponse> expected = List.of(history1);
         when(walletService.getWalletHistory(userId)).thenReturn(expected);
@@ -112,10 +109,7 @@ class WalletControllerTest {
                .andExpect(jsonPath("$.data[0].amount").value(history1.amount()))
                .andExpect(jsonPath("$.data[0].balanceAfter").value(history1.balanceAfter()))
                .andExpect(jsonPath("$.data[0].type").value(history1.type().name()))
-               .andExpect(jsonPath("$.data[0].updatedAt").value(history1
-                                                                        .updatedAt()
-                                                                        .truncatedTo(ChronoUnit.MICROS)
-                                                                        .format(MICRO_FMT)));
+               .andExpect(jsonPath("$.data[0].updatedAt").value(history1.updatedAt().toString()));
 
     }
 }

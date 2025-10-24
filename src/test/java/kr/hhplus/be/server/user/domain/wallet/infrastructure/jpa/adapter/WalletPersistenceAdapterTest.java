@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import kr.hhplus.be.server.fixture.auth.AuthFixture;
-import kr.hhplus.be.server.user.domain.user.entity.User;
+import kr.hhplus.be.server.user.domain.user.infrastructure.jpa.entity.UserJpaEntity;
 import kr.hhplus.be.server.user.domain.wallet.core.constant.TransactionType;
 import kr.hhplus.be.server.user.domain.wallet.core.dto.GetBalanceResponse;
 import kr.hhplus.be.server.user.domain.wallet.core.dto.GetWalletHistoryResponse;
@@ -47,7 +47,7 @@ class WalletPersistenceAdapterTest {
         //given
         long userId = 1L;
         long walletId = 1L;
-        User user = AuthFixture.user();
+        UserJpaEntity userJpaEntity = AuthFixture.user();
         WalletLedger walletLedger = WalletLedger.of(
                 walletId,
                 TransactionType.CHARGE,
@@ -62,7 +62,7 @@ class WalletPersistenceAdapterTest {
                 LocalDateTime.now(),
                 LocalDateTime.now()
         );
-        WalletJpaEntity walletJpaEntity = WalletJpaEntity.of(user);
+        WalletJpaEntity walletJpaEntity = WalletJpaEntity.of(userJpaEntity);
         when(walletJpaRepository.getWalletByUserId(userId)).thenReturn(walletJpaEntity);
         when(walletMapper.toDomain(walletJpaEntity)).thenReturn(expected);
 
@@ -97,7 +97,7 @@ class WalletPersistenceAdapterTest {
             //given
             long userId = 1L;
             long walletId = 1L;
-            User user = AuthFixture.user();
+            UserJpaEntity userJpaEntity = AuthFixture.user();
             WalletLedger walletLedger = WalletLedger.of(
                     userId,
                     TransactionType.CHARGE,
@@ -113,7 +113,7 @@ class WalletPersistenceAdapterTest {
                     LocalDateTime.now(),
                     LocalDateTime.now()
             );
-            WalletJpaEntity walletJpaEntity = WalletJpaEntity.of(user);
+            WalletJpaEntity walletJpaEntity = WalletJpaEntity.of(userJpaEntity);
             ReflectionTestUtils.setField(walletJpaEntity, "id", walletId);
             ReflectionTestUtils.setField(walletJpaEntity, "balance", BigDecimal.valueOf(1000L));
             when(walletJpaRepository.getReferenceById(walletId)).thenReturn(walletJpaEntity);
@@ -135,7 +135,7 @@ class WalletPersistenceAdapterTest {
             //given
             long userId = 1L;
             long walletId = 1L;
-            User user = AuthFixture.user();
+            UserJpaEntity userJpaEntity = AuthFixture.user();
             WalletLedger walletLedger = WalletLedger.of(
                     userId,
                     TransactionType.CHARGE,
@@ -159,7 +159,7 @@ class WalletPersistenceAdapterTest {
                     LocalDateTime.now()
             );
             ReflectionTestUtils.setField(expected, "pendingLedgers", new ArrayList<>(List.of(walletLedger2)));
-            WalletJpaEntity walletJpaEntity = WalletJpaEntity.of(user);
+            WalletJpaEntity walletJpaEntity = WalletJpaEntity.of(userJpaEntity);
             ReflectionTestUtils.setField(walletJpaEntity, "id", walletId);
             ReflectionTestUtils.setField(walletJpaEntity, "balance", BigDecimal.valueOf(1000L));
             when(walletJpaRepository.getReferenceById(walletId)).thenReturn(walletJpaEntity);
